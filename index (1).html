@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aaina — Indian Skin Tone Color Analysis by Ananya Tyagi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream: #FDF6EE; --warm-white: #FFFBF5;
+  --orange: #E8621A; --orange-light: #F5894A;
+  --gold: #C9952A; --gold-light: #F0C96E;
+  --text-dark: #1C1410; --text-mid: #5C4033; --text-soft: #9C7E6A;
+  --border: rgba(201,149,42,0.2);
+  --card-bg: rgba(255,251,245,0.9);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--text-dark); min-height:100vh; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:radial-gradient(circle at 15% 20%,rgba(232,98,26,0.07) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(201,149,42,0.08) 0%,transparent 50%); pointer-events:none; z-index:0; }
+body::after { content:''; position:fixed; top:0; right:0; width:400px; height:400px; background-image:radial-gradient(circle,rgba(201,149,42,0.12) 1px,transparent 1px); background-size:24px 24px; pointer-events:none; z-index:0; }
+.page { position:relative; z-index:1; }
+
+/* NAVBAR */
+.navbar { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; background:rgba(253,246,238,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+.nav-logo { font-family:'Playfair Display',serif; font-size:22px; color:var(--orange); font-weight:700; }
+.nav-logo span { font-size:11px; color:var(--gold); display:block; letter-spacing:2px; text-transform:uppercase; font-family:'DM Sans',sans-serif; font-weight:500; margin-top:-4px; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.nav-btn { padding:8px 18px; border-radius:20px; font-size:13px; font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; transition:all 0.2s; border:1.5px solid var(--border); background:transparent; color:var(--text-mid); }
+.nav-btn:hover { border-color:var(--orange); color:var(--orange); }
+.nav-btn.primary { background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border-color:transparent; }
+.nav-btn.primary:hover { opacity:0.88; }
+.user-pill { display:flex; align-items:center; gap:8px; background:rgba(232,98,26,0.08); border:1px solid rgba(232,98,26,0.2); border-radius:20px; padding:5px 14px 5px 5px; font-size:13px; color:var(--text-dark); }
+.user-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.logout-btn { background:none; border:none; color:var(--text-soft); font-size:12px; cursor:pointer; margin-left:4px; font-family:'DM Sans',sans-serif; }
+.logout-btn:hover { color:var(--orange); }
+
+/* HERO */
+.hero { text-align:center; padding:4rem 2rem 2rem; }
+.hero-badge { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:11px; letter-spacing:3px; text-transform:uppercase; padding:6px 20px; border-radius:30px; margin-bottom:1.2rem; font-weight:500; }
+.hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2.4rem,6vw,4rem); color:var(--text-dark); line-height:1.15; margin-bottom:0.6rem; }
+.hero h1 em { color:var(--orange); font-style:italic; }
+.hero-sub { font-size:15px; color:var(--text-soft); max-width:520px; margin:0 auto 2.5rem; line-height:1.7; }
+.hero-divider { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:2.5rem; }
+.hero-divider span { font-size:18px; color:var(--gold); }
+.hero-divider::before,.hero-divider::after { content:''; flex:1; max-width:80px; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
+.hero-divider::after { background:linear-gradient(to left,transparent,var(--gold)); }
+
+/* AUTH MODAL */
+.modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,20,16,0.55); z-index:200; align-items:center; justify-content:center; padding:1rem; min-height:100vh; }
+.modal-backdrop.open { display:flex; }
+.auth-modal { background:var(--warm-white); border-radius:24px; padding:2.2rem; width:100%; max-width:420px; border:1.5px solid var(--border); animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); position:relative; }
+@keyframes modalIn { from{opacity:0;transform:scale(0.9) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.modal-close { position:absolute; top:16px; right:18px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-soft); }
+.modal-close:hover { color:var(--text-dark); }
+.modal-logo { text-align:center; margin-bottom:1.4rem; }
+.modal-logo-text { font-family:'Playfair Display',serif; font-size:28px; color:var(--orange); }
+.modal-logo-sub { font-size:11px; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
+.modal-title { text-align:center; font-family:'Playfair Display',serif; font-size:20px; color:var(--text-dark); margin-bottom:4px; }
+.modal-sub { text-align:center; font-size:13px; color:var(--text-soft); margin-bottom:1.4rem; }
+.auth-tabs { display:flex; background:rgba(255,244,230,0.8); border-radius:10px; padding:4px; margin-bottom:1.4rem; }
+.auth-tab { flex:1; text-align:center; padding:8px; font-size:13px; font-weight:500; border-radius:8px; cursor:pointer; color:var(--text-soft); border:none; background:none; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.auth-tab.active { background:var(--orange); color:#fff; }
+.form-group { margin-bottom:1rem; }
+.form-label { font-size:12px; font-weight:500; color:var(--text-mid); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:block; }
+.form-input { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:14px; background:rgba(255,255,255,0.8); color:var(--text-dark); outline:none; transition:border-color 0.2s; }
+.form-input:focus { border-color:var(--orange); }
+.form-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border:none; border-radius:12px; font-family:'Playfair Display',serif; font-size:16px; cursor:pointer; margin-top:0.4rem; transition:opacity 0.2s,transform 0.15s; }
+.form-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.form-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.form-err { color:#C0392B; font-size:12px; margin-top:8px; text-align:center; display:none; padding:8px 12px; background:rgba(192,57,43,0.07); border-radius:8px; }
+.form-divider { text-align:center; font-size:12px; color:var(--text-soft); margin:1rem 0; }
+.switch-link { color:var(--orange); cursor:pointer; font-weight:500; border-bottom:1px solid rgba(232,98,26,0.3); }
+
+/* GATE */
+.auth-gate { pointer-events:none; opacity:0.35; filter:blur(2px); user-select:none; }
+.gate-banner { background:linear-gradient(135deg,rgba(232,98,26,0.10),rgba(201,149,42,0.10)); border:1.5px dashed var(--gold); border-radius:16px; padding:1.2rem; text-align:center; margin-bottom:1rem; }
+.gate-banner-title { font-family:'Playfair Display',serif; font-size:17px; color:var(--text-dark); margin-bottom:6px; }
+.gate-banner-sub { font-size:13px; color:var(--text-soft); margin-bottom:12px; }
+.gate-banner-btns { display:flex; gap:8px; justify-content:center; }
+.gate-btn { padding:8px 20px; border-radius:20px; font-size:13px; font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; border:1.5px solid var(--border); background:transparent; color:var(--text-mid); transition:all 0.2s; }
+.gate-btn:hover { border-color:var(--orange); color:var(--orange); }
+.gate-btn.primary { background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border-color:transparent; }
+
+/* TONE SELECTOR */
+.tone-section { padding:0 1.5rem 2rem; max-width:900px; margin:0 auto; }
+.section-label { text-align:center; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-soft); margin-bottom:1.2rem; font-weight:500; }
+.tone-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:2.5rem; }
+.tone-card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:18px; padding:1.2rem 0.8rem; cursor:pointer; text-align:center; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); position:relative; overflow:hidden; }
+.tone-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.08)); opacity:0; transition:opacity 0.3s; border-radius:16px; }
+.tone-card:hover { transform:translateY(-4px); border-color:var(--gold); box-shadow:0 12px 32px rgba(201,149,42,0.15); }
+.tone-card:hover::before { opacity:1; }
+.tone-card.active { border-color:var(--orange); box-shadow:0 0 0 3px rgba(232,98,26,0.15),0 12px 32px rgba(232,98,26,0.2); transform:translateY(-4px); }
+.tone-card.active::before { opacity:1; }
+.tone-card .check { position:absolute; top:10px; right:10px; width:20px; height:20px; background:var(--orange); border-radius:50%; display:none; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+.tone-card.active .check { display:flex; }
+.swatch-ring { width:66px; height:66px; border-radius:50%; margin:0 auto 10px; position:relative; display:flex; align-items:center; justify-content:center; }
+.swatch-ring::before { content:''; position:absolute; inset:-3px; border-radius:50%; background:conic-gradient(var(--gold),var(--orange),var(--gold)); opacity:0; transition:opacity 0.3s; }
+.tone-card.active .swatch-ring::before,.tone-card:hover .swatch-ring::before { opacity:1; }
+.swatch-inner { width:60px; height:60px; border-radius:50%; position:relative; z-index:1; border:3px solid var(--cream); }
+.tone-name { font-weight:500; font-size:14px; color:var(--text-dark); margin-bottom:2px; }
+.tone-range { font-size:11px; color:var(--text-soft); }
+
+/* SELFIE */
+.selfie-section { max-width:900px; margin:0 auto 3rem; padding:0 1.5rem; }
+.selfie-outer { background:linear-gradient(135deg,#FFF8F0,#FFF0E0); border:1.5px solid var(--border); border-radius:24px; padding:2rem; position:relative; overflow:hidden; }
+.selfie-header { display:flex; align-items:center; gap:14px; margin-bottom:1.5rem; }
+.selfie-icon-wrap { width:52px; height:52px; background:linear-gradient(135deg,var(--orange),var(--gold)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.selfie-title { font-family:'Playfair Display',serif; font-size:20px; color:var(--text-dark); }
+.selfie-subtitle { font-size:13px; color:var(--text-soft); margin-top:2px; }
+.upload-zone { border:2px dashed rgba(201,149,42,0.35); border-radius:18px; padding:2.5rem 1.5rem; text-align:center; cursor:pointer; transition:all 0.3s; background:rgba(255,255,255,0.5); position:relative; margin-bottom:1rem; }
+.upload-zone:hover { border-color:var(--orange); background:rgba(232,98,26,0.04); }
+.upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { font-size:36px; margin-bottom:10px; }
+.upload-text { font-size:15px; font-weight:500; color:var(--text-dark); margin-bottom:4px; }
+.upload-sub { font-size:12px; color:var(--text-soft); }
+.preview-wrap { display:none; position:relative; margin-bottom:1rem; border-radius:18px; overflow:hidden; border:1.5px solid var(--border); }
+.preview-wrap img { width:100%; max-height:280px; object-fit:cover; display:block; }
+.preview-change { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:10px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.analyse-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border:none; border-radius:14px; font-family:'Playfair Display',serif; font-size:17px; cursor:pointer; transition:opacity 0.2s,transform 0.15s; }
+.analyse-btn:hover { opacity:0.92; transform:translateY(-1px); }
+.analyse-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.loading-pulse { text-align:center; padding:2rem; color:var(--text-soft); font-size:14px; display:none; }
+.pulse-dot { display:inline-block; width:8px; height:8px; background:var(--orange); border-radius:50%; margin:0 3px; animation:pulse 1.2s ease-in-out infinite; }
+.pulse-dot:nth-child(2) { animation-delay:0.2s; }
+.pulse-dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes pulse { 0%,100%{transform:scale(0.6);opacity:0.4} 50%{transform:scale(1);opacity:1} }
+.err-msg { color:#C0392B; font-size:13px; margin-top:8px; padding:10px 14px; background:rgba(192,57,43,0.07); border-radius:10px; display:none; }
+.ai-result { display:none; margin-top:1.2rem; animation:fadeIn 0.4s ease; }
+.ai-result-header { display:flex; align-items:center; gap:10px; margin-bottom:1rem; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.ai-tone-dot { width:36px; height:36px; border-radius:50%; border:3px solid var(--gold); flex-shrink:0; }
+.ai-tone-label { font-family:'Playfair Display',serif; font-size:17px; color:var(--text-dark); }
+.ai-tone-sub { font-size:12px; color:var(--orange); font-weight:500; margin-top:1px; }
+.ai-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+.ai-card { background:rgba(255,255,255,0.75); border:1px solid var(--border); border-radius:14px; padding:12px; }
+.ai-card-title { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-soft); margin-bottom:8px; }
+.ai-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.ai-chip { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.9); border:1px solid var(--border); border-radius:20px; padding:3px 8px 3px 5px; font-size:11px; color:var(--text-mid); }
+.ai-chip-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+.ai-insight { background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.06)); border-left:3px solid var(--orange); border-radius:0 12px 12px 0; padding:12px 14px; font-size:13px; color:var(--text-mid); line-height:1.6; margin-bottom:10px; }
+
+/* RESULTS */
+.results-wrap { max-width:900px; margin:0 auto; padding:0 1.5rem 4rem; }
+.placeholder-msg { text-align:center; padding:4rem 2rem; color:var(--text-soft); font-size:15px; background:var(--card-bg); border:1.5px dashed var(--border); border-radius:20px; }
+.placeholder-msg .icon { font-size:36px; display:block; margin-bottom:12px; }
+.result-header { background:linear-gradient(135deg,#FFF4E6,#FDE8CF); border:1.5px solid var(--border); border-radius:20px; padding:1.8rem; display:flex; align-items:center; gap:20px; margin-bottom:1.5rem; animation:fadeIn 0.4s ease; }
+.result-swatch-lg { width:80px; height:80px; border-radius:50%; border:4px solid #fff; box-shadow:0 4px 20px rgba(0,0,0,0.12); flex-shrink:0; }
+.result-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text-dark); }
+.result-subtitle { font-size:13px; color:var(--orange); font-weight:500; margin:2px 0; text-transform:uppercase; letter-spacing:1px; }
+.result-desc { font-size:13px; color:var(--text-mid); line-height:1.6; margin-top:4px; }
+
+/* TABS */
+.tabs { display:flex; gap:6px; background:rgba(255,244,230,0.8); border:1px solid var(--border); border-radius:14px; padding:5px; margin-bottom:1.5rem; flex-wrap:wrap; animation:fadeIn 0.5s ease; }
+.tab-btn { flex:1; min-width:90px; background:transparent; border:none; padding:10px 10px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--text-soft); cursor:pointer; transition:all 0.25s; white-space:nowrap; text-align:center; }
+.tab-btn:hover { color:var(--orange); background:rgba(232,98,26,0.06); }
+.tab-btn.active { background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(232,98,26,0.3); }
+.tab-content { display:none; animation:fadeIn 0.3s ease; }
+.tab-content.active { display:block; }
+
+/* CARDS */
+.card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:18px; padding:1.4rem; margin-bottom:1rem; }
+.card-title { font-size:13px; font-weight:500; color:var(--text-soft); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+.card-title .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); }
+.wear-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.wear-tag { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; padding:3px 12px; border-radius:20px; }
+.tip-box { background:linear-gradient(135deg,rgba(232,98,26,0.07),rgba(201,149,42,0.07)); border-left:3px solid var(--orange); border-radius:0 12px 12px 0; padding:12px 16px; font-size:13px; color:var(--text-mid); line-height:1.6; margin-top:8px; }
+.tip-box strong { color:var(--orange); }
+
+/* COLOUR CARDS */
+.colour-cards-grid { display:flex; flex-direction:column; gap:8px; }
+.colour-card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; display:flex; align-items:flex-start; gap:12px; transition:all 0.25s; }
+.colour-card:hover { border-color:var(--orange); transform:translateX(3px); box-shadow:0 4px 16px rgba(232,98,26,0.1); }
+.colour-card-swatch { width:52px; height:52px; border-radius:12px; flex-shrink:0; border:2px solid rgba(255,255,255,0.6); box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+.colour-card-info { flex:1; }
+.colour-card-name { font-size:14px; font-weight:500; color:var(--text-dark); margin-bottom:3px; }
+.colour-card-why { font-size:12px; color:var(--text-soft); line-height:1.5; margin-bottom:6px; }
+.colour-card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.colour-card-occasion { font-size:10px; font-weight:500; color:var(--orange); background:rgba(232,98,26,0.08); border-radius:20px; padding:2px 8px; text-transform:uppercase; letter-spacing:0.5px; }
+.rating-stars { display:flex; gap:2px; }
+.star { width:12px; height:12px; border-radius:2px; }
+.star.filled { background:var(--gold); }
+.star.empty { background:rgba(201,149,42,0.2); }
+.best-badge { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-left:6px; vertical-align:middle; }
+.avoid-card { background:rgba(255,255,255,0.7); border:1px solid rgba(200,60,60,0.15); border-radius:12px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; }
+.avoid-card-dot { width:36px; height:36px; border-radius:10px; flex-shrink:0; border:1.5px solid rgba(0,0,0,0.08); }
+.avoid-card-info { flex:1; }
+.avoid-card-name { font-size:13px; font-weight:500; color:var(--text-dark); margin-bottom:2px; }
+.avoid-x-badge { color:#C0392B; font-size:11px; font-weight:700; margin-left:6px; }
+.avoid-card-why { font-size:12px; color:var(--text-soft); line-height:1.4; }
+
+/* MAKEUP / JEWELRY / FOOTWEAR */
+.chips-wrap { display:flex; flex-wrap:wrap; gap:10px; }
+.chip { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.chip-dot { width:44px; height:44px; border-radius:50%; border:2px solid rgba(255,255,255,0.8); box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:transform 0.2s; }
+.chip:hover .chip-dot { transform:scale(1.15); }
+.chip-name { font-size:10px; color:var(--text-soft); text-align:center; max-width:52px; line-height:1.3; }
+.chip-type { font-size:9px; color:var(--orange); font-weight:500; text-align:center; max-width:52px; }
+.detail-tip { font-size:11px; color:var(--text-soft); margin-top:4px; font-style:italic; }
+
+/* SEASONAL */
+.season-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.season-card { border-radius:16px; padding:1.2rem; border:1.5px solid transparent; }
+.season-card.spring { background:linear-gradient(135deg,#FFF9F0,#FFF0D6); border-color:rgba(240,180,60,0.3); }
+.season-card.summer { background:linear-gradient(135deg,#FFF5F0,#FFE8DC); border-color:rgba(232,98,26,0.25); }
+.season-card.autumn { background:linear-gradient(135deg,#F8F0E8,#F0DCC8); border-color:rgba(180,90,20,0.3); }
+.season-card.winter { background:linear-gradient(135deg,#EEF4FF,#E4EEFF); border-color:rgba(80,100,200,0.2); }
+.season-icon { font-size:22px; margin-bottom:8px; }
+.season-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-dark); }
+.season-tip { font-size:12px; color:var(--text-mid); line-height:1.5; margin-bottom:10px; }
+
+/* SHOP */
+.shop-intro-text { font-size:13px; color:var(--text-mid); background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.06)); border-left:3px solid var(--gold); border-radius:0 12px 12px 0; padding:10px 14px; line-height:1.6; margin-bottom:1rem; }
+.shop-section-title { font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-soft); margin:1.2rem 0 0.6rem; }
+.shop-grid { display:flex; flex-direction:column; gap:8px; }
+.shop-card { display:flex; align-items:center; gap:12px; background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; text-decoration:none; color:var(--text-dark); transition:all 0.22s; }
+.shop-card:hover { border-color:var(--orange); transform:translateX(4px); box-shadow:0 4px 16px rgba(232,98,26,0.12); }
+.shop-logo { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+.shop-info { flex:1; }
+.shop-site { font-size:11px; font-weight:500; color:var(--text-soft); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.shop-label { font-size:13px; color:var(--text-dark); }
+.shop-arrow { font-size:16px; color:var(--orange); flex-shrink:0; transition:transform 0.2s; }
+.shop-card:hover .shop-arrow { transform:translateX(4px); }
+
+/* API status */
+.api-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500; }
+.api-status.ok { background:rgba(39,174,96,0.12); color:#27ae60; }
+.api-status.err { background:rgba(192,57,43,0.12); color:#c0392b; }
+.api-dot { width:7px; height:7px; border-radius:50%; }
+.api-status.ok .api-dot { background:#27ae60; animation:blink 2s infinite; }
+.api-status.err .api-dot { background:#c0392b; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+footer { text-align:center; padding:2rem; font-size:12px; color:var(--text-soft); border-top:1px solid var(--border); }
+.footer-logo { font-family:'Playfair Display',serif; font-size:20px; color:var(--orange); margin-bottom:6px; }
+
+@media(max-width:600px) {
+  .tone-grid { grid-template-columns:repeat(2,1fr); }
+  .season-grid,.ai-grid { grid-template-columns:1fr; }
+  .tabs { gap:4px; }
+  .tab-btn { font-size:12px; padding:8px 6px; min-width:70px; }
+  .result-header { flex-direction:column; text-align:center; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">Aaina <span>आईना · by Ananya Tyagi</span></div>
+  <div class="nav-right" id="navRight">
+    <span id="apiStatusBadge"></span>
+    <button class="nav-btn" onclick="openAuth('login')">Log in</button>
+    <button class="nav-btn primary" onclick="openAuth('signup')">Sign up free</button>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="authModal">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="modal-logo">
+      <div class="modal-logo-text">Aaina</div>
+      <div class="modal-logo-sub">आईना · Mirror of Your True Colours</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Log in</button>
+      <button class="auth-tab" id="tab-signup-btn" onclick="switchAuthTab('signup')">Sign up</button>
+    </div>
+    <div id="loginForm">
+      <div class="modal-title">Welcome back</div>
+      <div class="modal-sub">Log in to access your personal colour palette</div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Enter your password"/></div>
+      <div class="form-err" id="loginErr"></div>
+      <button class="form-btn" id="loginBtn" onclick="doLogin()">✦ Log In</button>
+      <div class="form-divider">No account? <span class="switch-link" onclick="switchAuthTab('signup')">Sign up free</span></div>
+    </div>
+    <div id="signupForm" style="display:none;">
+      <div class="modal-title">Create your account</div>
+      <div class="modal-sub">Join Aaina and discover your perfect colour palette</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="signupName" placeholder="Your name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signupEmail" placeholder="you@email.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 6 characters"/></div>
+      <div class="form-err" id="signupErr"></div>
+      <button class="form-btn" id="signupBtn" onclick="doSignup()">✦ Create Account</button>
+      <div class="form-divider">Already have an account? <span class="switch-link" onclick="switchAuthTab('login')">Log in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">✦ Beauty Guide for Indian Skin ✦</div>
+  <div style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,5.5rem);font-weight:700;letter-spacing:2px;color:var(--orange);line-height:1;margin-bottom:0.3rem;">Aaina</div>
+  <div style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;font-weight:500;">आईना · Mirror of Your True Colours</div>
+  <h1>Discover Your<br/><em>Perfect Palette</em></h1>
+  <p class="hero-sub">A complete color analysis guide for Indian skin tones — clothing, makeup, jewelry, footwear, and seasonal palettes, now powered by a real backend.</p>
+  <div class="hero-divider"><span>✦</span></div>
+</header>
+
+<!-- TONE SELECTOR -->
+<section class="tone-section">
+  <div id="toneGateBanner" class="gate-banner" style="display:none;">
+    <div class="gate-banner-title">🔒 Log in to select your skin tone</div>
+    <div class="gate-banner-sub">Create a free account to unlock your personalised colour palette</div>
+    <div class="gate-banner-btns">
+      <button class="gate-btn" onclick="openAuth('login')">Log in</button>
+      <button class="gate-btn primary" onclick="openAuth('signup')">Sign up free</button>
+    </div>
+  </div>
+  <div id="toneContent">
+    <div class="section-label">Step 1 — Select your skin tone</div>
+    <div class="tone-grid" id="toneGrid"></div>
+  </div>
+</section>
+
+<!-- SELFIE -->
+<section class="selfie-section">
+  <div class="section-label">— or detect instantly —</div><br/>
+  <div id="selfieGateBanner" class="gate-banner" style="display:none;">
+    <div class="gate-banner-title">🔒 Log in to use Selfie Detector</div>
+    <div class="gate-banner-sub">Sign in to upload your photo and get an instant skin tone analysis</div>
+    <div class="gate-banner-btns">
+      <button class="gate-btn" onclick="openAuth('login')">Log in</button>
+      <button class="gate-btn primary" onclick="openAuth('signup')">Sign up free</button>
+    </div>
+  </div>
+  <div class="selfie-outer" id="selfieContent">
+    <div class="selfie-header">
+      <div class="selfie-icon-wrap">🪞</div>
+      <div>
+        <div class="selfie-title">Selfie Skin Tone Detector</div>
+        <div class="selfie-subtitle">Upload your photo — Aaina reads your skin pixels and fetches your palette from the backend</div>
+      </div>
+    </div>
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)"/>
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Upload your selfie</div>
+      <div class="upload-sub">Click to browse or drag & drop · JPG, PNG, WEBP</div>
+    </div>
+    <div class="preview-wrap" id="previewWrap">
+      <img id="previewImg" src="" alt="Your selfie"/>
+      <button class="preview-change" onclick="resetUpload()">Change photo</button>
+    </div>
+    <button class="analyse-btn" id="analyseBtn" onclick="analyseSelfie()" disabled>✦ Detect My Skin Tone</button>
+    <div class="err-msg" id="errMsg"></div>
+    <div class="loading-pulse" id="loadingPulse">
+      <span class="pulse-dot"></span><span class="pulse-dot"></span><span class="pulse-dot"></span>
+      <div style="margin-top:10px;">Aaina is reading your complexion…</div>
+    </div>
+    <div class="ai-result" id="aiResult"></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-wrap" id="resultsWrap">
+  <div class="placeholder-msg" id="placeholder">
+    <span class="icon">🎨</span>
+    Select your skin tone above to unlock your personalised colour story
+  </div>
+  <div id="resultBox" style="display:none;"></div>
+</section>
+
+<footer>
+  <div class="footer-logo">Aaina · आईना</div>
+  <p style="margin-bottom:6px;">Color Analysis for Every Indian Skin Tone</p>
+  <p style="font-size:11px;color:var(--text-soft);margin-top:6px;">Crafted with love by <strong style="color:var(--orange);font-weight:500;">Ananya Tyagi</strong></p>
+</footer>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+let currentUser = null;
+let authToken = null;
+let activeTone = null;
+let activeTab = 'clothing';
+let uploadedDataUrl = null;
+let tonesCache = {};
+
+// ── API HELPER ──────────────────────────────────────
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ── HEALTH CHECK ────────────────────────────────────
+async function checkHealth() {
+  const badge = document.getElementById('apiStatusBadge');
+  try {
+    await api('GET', '/health');
+    badge.innerHTML = '<span class="api-status ok"><span class="api-dot"></span>Backend live</span>';
+  } catch {
+    badge.innerHTML = '<span class="api-status err"><span class="api-dot"></span>Backend offline</span>';
+  }
+}
+
+// ── SESSION ─────────────────────────────────────────
+function saveSession(token, user) {
+  authToken = token; currentUser = user;
+  try { localStorage.setItem('aaina_token', token); localStorage.setItem('aaina_user', JSON.stringify(user)); } catch(e){}
+}
+function loadSession() {
+  try {
+    const t = localStorage.getItem('aaina_token');
+    const u = localStorage.getItem('aaina_user');
+    if (t && u) { authToken = t; currentUser = JSON.parse(u); return true; }
+  } catch(e){}
+  return false;
+}
+function clearSession() {
+  authToken = null; currentUser = null;
+  try { localStorage.removeItem('aaina_token'); localStorage.removeItem('aaina_user'); } catch(e){}
+}
+
+// ── AUTH MODAL ───────────────────────────────────────
+function openAuth(tab) { document.getElementById('authModal').classList.add('open'); switchAuthTab(tab||'login'); }
+function closeAuth() { document.getElementById('authModal').classList.remove('open'); }
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('signupForm').style.display = tab==='signup'?'block':'none';
+  document.getElementById('tab-login-btn').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup-btn').classList.toggle('active', tab==='signup');
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('signupErr').style.display = 'none';
+}
+document.getElementById('authModal').addEventListener('click', e => { if(e.target===document.getElementById('authModal')) closeAuth(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    saveSession(data.token, data.user);
+    closeAuth(); applyAuthState(); loadToneGrid();
+  } catch(e) {
+    err.textContent = e.message; err.style.display='block';
+  } finally { btn.disabled=false; btn.textContent='✦ Log In'; }
+}
+
+async function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPass').value;
+  const btn = document.getElementById('signupBtn');
+  const err = document.getElementById('signupErr');
+  err.style.display='none'; btn.disabled=true; btn.textContent='Creating account…';
+  try {
+    const data = await api('POST', '/auth/signup', { name, email, password });
+    saveSession(data.token, data.user);
+    closeAuth(); applyAuthState(); loadToneGrid();
+  } catch(e) {
+    err.textContent = e.message; err.style.display='block';
+  } finally { btn.disabled=false; btn.textContent='✦ Create Account'; }
+}
+
+async function doLogout() {
+  try { await api('POST', '/auth/logout'); } catch(e){}
+  clearSession(); applyAuthState();
+  document.getElementById('placeholder').style.display='block';
+  document.getElementById('resultBox').style.display='none';
+  activeTone=null; tonesCache={};
+  document.querySelectorAll('.tone-card').forEach(c=>c.classList.remove('active'));
+}
+
+// ── AUTH STATE ───────────────────────────────────────
+function applyAuthState() {
+  const loggedIn = !!currentUser;
+  const navRight = document.getElementById('navRight');
+  if (loggedIn) {
+    const initials = currentUser.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    navRight.innerHTML = `
+      <span id="apiStatusBadge"></span>
+      <div class="user-pill">
+        <div class="user-avatar">${initials}</div>
+        <span>${currentUser.name.split(' ')[0]}</span>
+        <button class="logout-btn" onclick="doLogout()">Log out</button>
+      </div>`;
+    document.getElementById('toneGateBanner').style.display='none';
+    document.getElementById('toneContent').classList.remove('auth-gate');
+    document.getElementById('selfieGateBanner').style.display='none';
+    document.getElementById('selfieContent').classList.remove('auth-gate');
+    document.getElementById('selfieContent').style.pointerEvents='';
+    document.getElementById('placeholder').innerHTML='<span class="icon">🎨</span>Select your skin tone above to unlock your personalised colour story';
+  } else {
+    navRight.innerHTML = `
+      <span id="apiStatusBadge"></span>
+      <button class="nav-btn" onclick="openAuth('login')">Log in</button>
+      <button class="nav-btn primary" onclick="openAuth('signup')">Sign up free</button>`;
+    document.getElementById('toneGateBanner').style.display='block';
+    document.getElementById('toneContent').classList.add('auth-gate');
+    document.getElementById('selfieGateBanner').style.display='block';
+    document.getElementById('selfieContent').classList.add('auth-gate');
+    document.getElementById('selfieContent').style.pointerEvents='none';
+    document.getElementById('placeholder').innerHTML='<span class="icon">🔒</span>Please log in or sign up to see your colour palette';
+  }
+  checkHealth();
+}
+
+// ── TONE GRID ────────────────────────────────────────
+async function loadToneGrid() {
+  try {
+    const data = await api('GET', '/colours');
+    const grid = document.getElementById('toneGrid');
+    grid.innerHTML = data.tones.map(t => `
+      <div class="tone-card" id="tc-${t.id}" onclick="selectTone('${t.id}')">
+        <div class="check">✓</div>
+        <div class="swatch-ring"><div class="swatch-inner" style="background:${t.swatch}"></div></div>
+        <div class="tone-name">${t.name}</div>
+        <div class="tone-range">${t.range.split('·')[0].trim()}</div>
+      </div>`).join('');
+  } catch(e) {
+    document.getElementById('toneGrid').innerHTML = `<p style="color:var(--text-soft);font-size:13px;grid-column:1/-1;text-align:center;">Could not load skin tones. Is the backend running?</p>`;
+  }
+}
+
+// ── SELECT TONE ──────────────────────────────────────
+async function selectTone(id) {
+  if (!currentUser) { openAuth('login'); return; }
+  activeTone = id; activeTab = 'clothing';
+  document.querySelectorAll('.tone-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tc-'+id).classList.add('active');
+  document.getElementById('placeholder').style.display='none';
+  const box = document.getElementById('resultBox');
+  box.style.display='block';
+  box.innerHTML='<div style="text-align:center;padding:3rem;color:var(--text-soft)"><span style="font-size:30px">⏳</span><br/>Loading your palette from server…</div>';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  try {
+    if (!tonesCache[id]) {
+      const data = await api('GET', `/colours/${id}`);
+      tonesCache[id] = data.data;
+    }
+    // Save preference to backend
+    await api('POST', '/preferences', { skinTone: id, detectionMethod: 'manual' });
+    renderResults(tonesCache[id]);
+  } catch(e) {
+    box.innerHTML=`<div class="placeholder-msg"><span class="icon">⚠️</span>${e.message}</div>`;
+  }
+}
+
+function switchTab(tab) {
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-btn-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+// ── RENDER RESULTS ───────────────────────────────────
+function renderResults(t) {
+  const box = document.getElementById('resultBox');
+
+  function stars(n) {
+    return `<div class="rating-stars">${[1,2,3,4,5].map(i=>`<div class="star ${i<=n?'filled':'empty'}"></div>`).join('')}</div>`;
+  }
+  function richCard(c) {
+    return `<div class="colour-card">
+      <div class="colour-card-swatch" style="background:${c.hex}"></div>
+      <div class="colour-card-info">
+        <div class="colour-card-name">${c.name}${c.rating===5?'<span class="best-badge">✦ Best match</span>':''}</div>
+        <div class="colour-card-why">${c.why}</div>
+        <div class="colour-card-meta">${stars(c.rating)}<div class="colour-card-occasion">${c.occasion}</div></div>
+      </div></div>`;
+  }
+  function avoidCard(c) {
+    return `<div class="avoid-card">
+      <div class="avoid-card-dot" style="background:${c.hex}"></div>
+      <div class="avoid-card-info">
+        <div class="avoid-card-name">${c.name}<span class="avoid-x-badge">✕ Avoid</span></div>
+        <div class="avoid-card-why">${c.why}</div>
+      </div></div>`;
+  }
+  function chip(c, extra='') {
+    return `<div class="chip"><div class="chip-dot" style="background:${c.hex}"></div><div class="chip-name">${c.name}</div>${extra?`<div class="chip-type">${extra}</div>`:''}</div>`;
+  }
+  function seasonSwatch(col) {
+    return `<div style="width:32px;height:32px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,0.7);display:inline-block;margin-right:4px;"></div>`;
+  }
+
+  const clothingContent = `
+    <div class="card"><div class="wear-header"><div class="wear-tag">✦ Your Best Colours</div></div>
+    <div class="card-title"><div class="dot"></div>Ranked by how well each colour suits your skin tone</div>
+    <div class="colour-cards-grid">${t.clothing.best.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="wear-header"><div class="wear-tag">Traditional wear</div></div>
+    <div class="card-title"><div class="dot"></div>Sarees, lehengas, kurtas & sherwanis</div>
+    <div class="colour-cards-grid">${t.clothing.traditional.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="wear-header"><div class="wear-tag">Western wear</div></div>
+    <div class="card-title"><div class="dot"></div>Dresses, blazers, denim & co-ords</div>
+    <div class="colour-cards-grid">${t.clothing.western.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="card-title"><div class="dot"></div>Colours to avoid — and why</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">${t.clothing.avoid.map(avoidCard).join('')}</div></div>
+    <div class="tip-box" style="margin-top:1rem;"><strong>Style tip:</strong> ${t.styleTip}</div>`;
+
+  const makeupContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Lipstick, blush & eyeshadow recommendations</div>
+    <div class="chips-wrap">${t.makeup.map(c=>chip(c,c.type)).join('')}</div>
+    <div style="margin-top:14px;">${t.makeup.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const jewelryContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Metal tones & gemstone colours</div>
+    <div class="chips-wrap">${t.jewelry.map(c=>chip(c,c.metal?'Metal':'Gemstone')).join('')}</div>
+    <div style="margin-top:14px;">${t.jewelry.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const footwearContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Shoe & sandal colour recommendations</div>
+    <div class="chips-wrap">${t.footwear.map(c=>chip(c)).join('')}</div>
+    <div style="margin-top:14px;">${t.footwear.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const seasonalContent = `<div class="season-grid">
+    ${[['spring','🌸','Spring'],['summer','☀️','Summer'],['autumn','🍂','Autumn'],['winter','❄️','Winter']].map(([k,icon,label])=>`
+    <div class="season-card ${k}">
+      <div class="season-icon">${icon}</div>
+      <div class="season-name">${label}</div>
+      <div style="margin-bottom:8px;">${t.seasons[k].colours.map(seasonSwatch).join('')}</div>
+      <div class="season-tip">${t.seasons[k].tip}</div>
+    </div>`).join('')}</div>`;
+
+  const logoColors = {M:'#FF3F6C',N:'#FC2779',A:'#F06225',Az:'#FF9900'};
+  async function buildShopContent() {
+    try {
+      const shopData = await api('GET', `/shopping/${activeTone}`);
+      const s = shopData.shopping;
+      function shopCards(arr) {
+        return arr.map(sh=>`<a href="${sh.url}" target="_blank" rel="noopener" class="shop-card">
+          <div class="shop-logo" style="background:${logoColors[sh.logo]||'#888'}">${sh.logo==='Az'?'<span style="font-size:9px">amz</span>':sh.logo}</div>
+          <div class="shop-info"><div class="shop-site">${sh.site}</div><div class="shop-label">${sh.label}</div></div>
+          <div class="shop-arrow">→</div></a>`).join('');
+      }
+      const shopContent = `
+        <div class="shop-intro-text">Curated shopping links for <strong>${t.name}</strong> skin tone — your best colours across top Indian stores.</div>
+        <div class="shop-section-title">👗 Clothing</div><div class="shop-grid">${shopCards(s.clothing)}</div>
+        <div class="shop-section-title">💄 Makeup</div><div class="shop-grid">${shopCards(s.makeup)}</div>
+        <div class="shop-section-title">💍 Jewelry</div><div class="shop-grid">${shopCards(s.jewelry)}</div>
+        <div class="shop-section-title">👠 Footwear</div><div class="shop-grid">${shopCards(s.footwear)}</div>
+        <div class="tip-box" style="margin-top:1rem;"><strong>Shopping tip:</strong> Filter by colour on each site to find shades that match your palette perfectly!</div>`;
+      document.getElementById('tab-shop').innerHTML = shopContent;
+    } catch(e) {
+      document.getElementById('tab-shop').innerHTML = `<div class="placeholder-msg"><span class="icon">⚠️</span>${e.message}</div>`;
+    }
+  }
+
+  const tabs = ['clothing','makeup','jewelry','footwear','seasonal','shop'];
+  const tabsHtml = tabs.map(tab=>`
+    <button class="tab-btn ${tab===activeTab?'active':''}" id="tab-btn-${tab}" onclick="switchTab('${tab}')">
+      ${tab==='clothing'?'👗 Clothing':tab==='makeup'?'💄 Makeup':tab==='jewelry'?'💍 Jewelry':tab==='footwear'?'👠 Footwear':tab==='seasonal'?'🌿 Seasonal':'🛍 Shop'}
+    </button>`).join('');
+
+  box.innerHTML = `
+    <div class="result-header">
+      <div class="result-swatch-lg" style="background:${t.swatch}"></div>
+      <div><div class="result-subtitle">${t.range}</div><div class="result-title">${t.name} Skin Tone</div><div class="result-desc">${t.desc}</div></div>
+    </div>
+    <div class="tabs">${tabsHtml}</div>
+    <div class="tab-content active" id="tab-clothing">${clothingContent}</div>
+    <div class="tab-content" id="tab-makeup">${makeupContent}</div>
+    <div class="tab-content" id="tab-jewelry">${jewelryContent}</div>
+    <div class="tab-content" id="tab-footwear">${footwearContent}</div>
+    <div class="tab-content" id="tab-seasonal">${seasonalContent}</div>
+    <div class="tab-content" id="tab-shop"><div style="text-align:center;padding:2rem;color:var(--text-soft)">Loading shopping links…</div></div>`;
+
+  buildShopContent();
+}
+
+// ── SELFIE DETECTOR ──────────────────────────────────
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedDataUrl = ev.target.result;
+    document.getElementById('uploadZone').style.display='none';
+    document.getElementById('previewWrap').style.display='block';
+    document.getElementById('previewImg').src=uploadedDataUrl;
+    document.getElementById('analyseBtn').disabled=false;
+    document.getElementById('aiResult').style.display='none';
+    document.getElementById('errMsg').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+function resetUpload() {
+  uploadedDataUrl=null;
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('previewWrap').style.display='none';
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('aiResult').style.display='none';
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('fileInput').value='';
+}
+function extractSkinTone(dataUrl, callback) {
+  const img = new Image();
+  img.onload = function() {
+    const canvas=document.getElementById('hiddenCanvas');
+    const size=120; canvas.width=size; canvas.height=size;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,size,size);
+    const pixels=ctx.getImageData(0,0,size,size).data;
+    let rSum=0,gSum=0,bSum=0,count=0;
+    for(let i=0;i<pixels.length;i+=4){
+      const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+      const max=Math.max(r,g,b),min=Math.min(r,g,b);
+      if(r>60&&g>30&&b>15&&r>g&&r>b&&(max-min)>10&&r<250){
+        const norm=r+g+b;
+        if(norm>90&&norm<700){rSum+=r;gSum+=g;bSum+=b;count++;}
+      }
+    }
+    if(count<50){
+      rSum=0;gSum=0;bSum=0;count=0;
+      const cx=size/2,cy=size/2,rad=30;
+      for(let y=cy-rad;y<cy+rad;y++)for(let x=cx-rad;x<cx+rad;x++){
+        const i=(Math.floor(y)*size+Math.floor(x))*4;
+        rSum+=pixels[i];gSum+=pixels[i+1];bSum+=pixels[i+2];count++;
+      }
+    }
+    callback(Math.round(rSum/count),Math.round(gSum/count),Math.round(bSum/count));
+  };
+  img.src=dataUrl;
+}
+function classifyTone(r,g,b){
+  const brightness=r*0.299+g*0.587+b*0.114;
+  if(brightness>175)return'fair';
+  if(brightness>140)return'wheatish';
+  if(brightness>105)return'dusky';
+  return'deep';
+}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+
+async function analyseSelfie() {
+  if(!uploadedDataUrl){showErr('Please upload a selfie first.');return;}
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('aiResult').style.display='none';
+  document.getElementById('loadingPulse').style.display='block';
+  setTimeout(()=>{
+    extractSkinTone(uploadedDataUrl,async(r,g,b)=>{
+      document.getElementById('loadingPulse').style.display='none';
+      document.getElementById('analyseBtn').disabled=false;
+      const toneId=classifyTone(r,g,b);
+      const detectedHex=rgbToHex(r,g,b);
+      try {
+        if(!tonesCache[toneId]){
+          const data=await api('GET',`/colours/${toneId}`);
+          tonesCache[toneId]=data.data;
+        }
+        await api('POST','/preferences',{skinTone:toneId,detectionMethod:'selfie'});
+        const t=tonesCache[toneId];
+        const box=document.getElementById('aiResult');
+        function aiChip(c){return`<div class="ai-chip"><div class="ai-chip-dot" style="background:${c.hex}"></div>${c.name}</div>`;}
+        box.innerHTML=`
+          <div class="ai-result-header">
+            <div class="ai-tone-dot" style="background:${detectedHex}"></div>
+            <div><div class="ai-tone-label">${t.name} Skin Tone Detected</div><div class="ai-tone-sub">${t.range}</div></div>
+          </div>
+          <div class="ai-insight">${t.desc}</div>
+          <div class="ai-grid">
+            <div class="ai-card"><div class="ai-card-title">👗 Best clothing</div><div class="ai-chips">${t.clothing.best.slice(0,5).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">💄 Makeup</div><div class="ai-chips">${t.makeup.slice(0,4).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">💍 Jewelry</div><div class="ai-chips">${t.jewelry.slice(0,3).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">👠 Footwear</div><div class="ai-chips">${t.footwear.slice(0,3).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+          </div>
+          <div class="tip-box"><strong>Aaina's tip:</strong> ${t.styleTip}</div>`;
+        box.style.display='block';
+        selectTone(toneId);
+      } catch(e){showErr(e.message);}
+    });
+  },900);
+}
+function showErr(msg){const el=document.getElementById('errMsg');el.textContent='⚠ '+msg;el.style.display='block';}
+
+// ── INIT ─────────────────────────────────────────────
+(function init(){
+  if(loadSession()){
+    applyAuthState();
+    loadToneGrid();
+    // Verify session is still valid with backend
+    api('GET','/auth/me').catch(()=>{clearSession();applyAuthState();});
+  } else {
+    applyAuthState();
+    loadToneGrid();
+  }
+})();
+</script>
+</body>
+</html>
