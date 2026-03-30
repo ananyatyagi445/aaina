@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aaina — Indian Skin Tone Color Analysis by Ananya Tyagi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream: #FDF6EE; --warm-white: #FFFBF5;
+  --orange: #E8621A; --orange-light: #F5894A;
+  --gold: #C9952A; --gold-light: #F0C96E;
+  --text-dark: #1C1410; --text-mid: #5C4033; --text-soft: #9C7E6A;
+  --border: rgba(201,149,42,0.2);
+  --card-bg: rgba(255,251,245,0.9);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--text-dark); min-height:100vh; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:radial-gradient(circle at 15% 20%,rgba(232,98,26,0.07) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(201,149,42,0.08) 0%,transparent 50%); pointer-events:none; z-index:0; }
+body::after { content:''; position:fixed; top:0; right:0; width:400px; height:400px; background-image:radial-gradient(circle,rgba(201,149,42,0.12) 1px,transparent 1px); background-size:24px 24px; pointer-events:none; z-index:0; }
+.page { position:relative; z-index:1; }
+
+/* NAVBAR */
+.navbar { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; background:rgba(253,246,238,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+.nav-logo { font-family:'Playfair Display',serif; font-size:22px; color:var(--orange); font-weight:700; }
+.nav-logo span { font-size:11px; color:var(--gold); display:block; letter-spacing:2px; text-transform:uppercase; font-family:'DM Sans',sans-serif; font-weight:500; margin-top:-4px; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.nav-btn { padding:8px 18px; border-radius:20px; font-size:13px; font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; transition:all 0.2s; border:1.5px solid var(--border); background:transparent; color:var(--text-mid); }
+.nav-btn:hover { border-color:var(--orange); color:var(--orange); }
+.nav-btn.primary { background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border-color:transparent; }
+.nav-btn.primary:hover { opacity:0.88; }
+.user-pill { display:flex; align-items:center; gap:8px; background:rgba(232,98,26,0.08); border:1px solid rgba(232,98,26,0.2); border-radius:20px; padding:5px 14px 5px 5px; font-size:13px; color:var(--text-dark); }
+.user-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.logout-btn { background:none; border:none; color:var(--text-soft); font-size:12px; cursor:pointer; margin-left:4px; font-family:'DM Sans',sans-serif; }
+.logout-btn:hover { color:var(--orange); }
+
+/* HERO */
+.hero { text-align:center; padding:4rem 2rem 2rem; }
+.hero-badge { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:11px; letter-spacing:3px; text-transform:uppercase; padding:6px 20px; border-radius:30px; margin-bottom:1.2rem; font-weight:500; }
+.hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2.4rem,6vw,4rem); color:var(--text-dark); line-height:1.15; margin-bottom:0.6rem; }
+.hero h1 em { color:var(--orange); font-style:italic; }
+.hero-sub { font-size:15px; color:var(--text-soft); max-width:520px; margin:0 auto 2.5rem; line-height:1.7; }
+.hero-divider { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:2.5rem; }
+.hero-divider span { font-size:18px; color:var(--gold); }
+.hero-divider::before,.hero-divider::after { content:''; flex:1; max-width:80px; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
+.hero-divider::after { background:linear-gradient(to left,transparent,var(--gold)); }
+
+/* AUTH MODAL */
+.modal-backdrop { display:none; position:fixed; inset:0; background:rgba(28,20,16,0.55); z-index:200; align-items:center; justify-content:center; padding:1rem; min-height:100vh; }
+.modal-backdrop.open { display:flex; }
+.auth-modal { background:var(--warm-white); border-radius:24px; padding:2.2rem; width:100%; max-width:420px; border:1.5px solid var(--border); animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); position:relative; }
+@keyframes modalIn { from{opacity:0;transform:scale(0.9) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.modal-close { position:absolute; top:16px; right:18px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-soft); }
+.modal-close:hover { color:var(--text-dark); }
+.modal-logo { text-align:center; margin-bottom:1.4rem; }
+.modal-logo-text { font-family:'Playfair Display',serif; font-size:28px; color:var(--orange); }
+.modal-logo-sub { font-size:11px; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
+.modal-title { text-align:center; font-family:'Playfair Display',serif; font-size:20px; color:var(--text-dark); margin-bottom:4px; }
+.modal-sub { text-align:center; font-size:13px; color:var(--text-soft); margin-bottom:1.4rem; }
+.auth-tabs { display:flex; background:rgba(255,244,230,0.8); border-radius:10px; padding:4px; margin-bottom:1.4rem; }
+.auth-tab { flex:1; text-align:center; padding:8px; font-size:13px; font-weight:500; border-radius:8px; cursor:pointer; color:var(--text-soft); border:none; background:none; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.auth-tab.active { background:var(--orange); color:#fff; }
+.form-group { margin-bottom:1rem; }
+.form-label { font-size:12px; font-weight:500; color:var(--text-mid); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:block; }
+.form-input { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:14px; background:rgba(255,255,255,0.8); color:var(--text-dark); outline:none; transition:border-color 0.2s; }
+.form-input:focus { border-color:var(--orange); }
+.form-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border:none; border-radius:12px; font-family:'Playfair Display',serif; font-size:16px; cursor:pointer; margin-top:0.4rem; transition:opacity 0.2s,transform 0.15s; }
+.form-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.form-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.form-err { color:#C0392B; font-size:12px; margin-top:8px; text-align:center; display:none; padding:8px 12px; background:rgba(192,57,43,0.07); border-radius:8px; }
+.form-divider { text-align:center; font-size:12px; color:var(--text-soft); margin:1rem 0; }
+.switch-link { color:var(--orange); cursor:pointer; font-weight:500; border-bottom:1px solid rgba(232,98,26,0.3); }
+
+/* GATE */
+.auth-gate { pointer-events:none; opacity:0.35; filter:blur(2px); user-select:none; }
+.gate-banner { background:linear-gradient(135deg,rgba(232,98,26,0.10),rgba(201,149,42,0.10)); border:1.5px dashed var(--gold); border-radius:16px; padding:1.2rem; text-align:center; margin-bottom:1rem; }
+.gate-banner-title { font-family:'Playfair Display',serif; font-size:17px; color:var(--text-dark); margin-bottom:6px; }
+.gate-banner-sub { font-size:13px; color:var(--text-soft); margin-bottom:12px; }
+.gate-banner-btns { display:flex; gap:8px; justify-content:center; }
+.gate-btn { padding:8px 20px; border-radius:20px; font-size:13px; font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; border:1.5px solid var(--border); background:transparent; color:var(--text-mid); transition:all 0.2s; }
+.gate-btn:hover { border-color:var(--orange); color:var(--orange); }
+.gate-btn.primary { background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border-color:transparent; }
+
+/* TONE SELECTOR */
+.tone-section { padding:0 1.5rem 2rem; max-width:900px; margin:0 auto; }
+.section-label { text-align:center; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-soft); margin-bottom:1.2rem; font-weight:500; }
+.tone-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:2.5rem; }
+.tone-card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:18px; padding:1.2rem 0.8rem; cursor:pointer; text-align:center; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); position:relative; overflow:hidden; }
+.tone-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.08)); opacity:0; transition:opacity 0.3s; border-radius:16px; }
+.tone-card:hover { transform:translateY(-4px); border-color:var(--gold); box-shadow:0 12px 32px rgba(201,149,42,0.15); }
+.tone-card:hover::before { opacity:1; }
+.tone-card.active { border-color:var(--orange); box-shadow:0 0 0 3px rgba(232,98,26,0.15),0 12px 32px rgba(232,98,26,0.2); transform:translateY(-4px); }
+.tone-card.active::before { opacity:1; }
+.tone-card .check { position:absolute; top:10px; right:10px; width:20px; height:20px; background:var(--orange); border-radius:50%; display:none; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+.tone-card.active .check { display:flex; }
+.swatch-ring { width:66px; height:66px; border-radius:50%; margin:0 auto 10px; position:relative; display:flex; align-items:center; justify-content:center; }
+.swatch-ring::before { content:''; position:absolute; inset:-3px; border-radius:50%; background:conic-gradient(var(--gold),var(--orange),var(--gold)); opacity:0; transition:opacity 0.3s; }
+.tone-card.active .swatch-ring::before,.tone-card:hover .swatch-ring::before { opacity:1; }
+.swatch-inner { width:60px; height:60px; border-radius:50%; position:relative; z-index:1; border:3px solid var(--cream); }
+.tone-name { font-weight:500; font-size:14px; color:var(--text-dark); margin-bottom:2px; }
+.tone-range { font-size:11px; color:var(--text-soft); }
+
+/* SELFIE */
+.selfie-section { max-width:900px; margin:0 auto 3rem; padding:0 1.5rem; }
+.selfie-outer { background:linear-gradient(135deg,#FFF8F0,#FFF0E0); border:1.5px solid var(--border); border-radius:24px; padding:2rem; position:relative; overflow:hidden; }
+.selfie-header { display:flex; align-items:center; gap:14px; margin-bottom:1.5rem; }
+.selfie-icon-wrap { width:52px; height:52px; background:linear-gradient(135deg,var(--orange),var(--gold)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.selfie-title { font-family:'Playfair Display',serif; font-size:20px; color:var(--text-dark); }
+.selfie-subtitle { font-size:13px; color:var(--text-soft); margin-top:2px; }
+.upload-zone { border:2px dashed rgba(201,149,42,0.35); border-radius:18px; padding:2.5rem 1.5rem; text-align:center; cursor:pointer; transition:all 0.3s; background:rgba(255,255,255,0.5); position:relative; margin-bottom:1rem; }
+.upload-zone:hover { border-color:var(--orange); background:rgba(232,98,26,0.04); }
+.upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { font-size:36px; margin-bottom:10px; }
+.upload-text { font-size:15px; font-weight:500; color:var(--text-dark); margin-bottom:4px; }
+.upload-sub { font-size:12px; color:var(--text-soft); }
+.preview-wrap { display:none; position:relative; margin-bottom:1rem; border-radius:18px; overflow:hidden; border:1.5px solid var(--border); }
+.preview-wrap img { width:100%; max-height:280px; object-fit:cover; display:block; }
+.preview-change { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:10px; padding:6px 12px; font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.analyse-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--orange),var(--gold)); color:#fff; border:none; border-radius:14px; font-family:'Playfair Display',serif; font-size:17px; cursor:pointer; transition:opacity 0.2s,transform 0.15s; }
+.analyse-btn:hover { opacity:0.92; transform:translateY(-1px); }
+.analyse-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.loading-pulse { text-align:center; padding:2rem; color:var(--text-soft); font-size:14px; display:none; }
+.pulse-dot { display:inline-block; width:8px; height:8px; background:var(--orange); border-radius:50%; margin:0 3px; animation:pulse 1.2s ease-in-out infinite; }
+.pulse-dot:nth-child(2) { animation-delay:0.2s; }
+.pulse-dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes pulse { 0%,100%{transform:scale(0.6);opacity:0.4} 50%{transform:scale(1);opacity:1} }
+.err-msg { color:#C0392B; font-size:13px; margin-top:8px; padding:10px 14px; background:rgba(192,57,43,0.07); border-radius:10px; display:none; }
+.ai-result { display:none; margin-top:1.2rem; animation:fadeIn 0.4s ease; }
+.ai-result-header { display:flex; align-items:center; gap:10px; margin-bottom:1rem; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.ai-tone-dot { width:36px; height:36px; border-radius:50%; border:3px solid var(--gold); flex-shrink:0; }
+.ai-tone-label { font-family:'Playfair Display',serif; font-size:17px; color:var(--text-dark); }
+.ai-tone-sub { font-size:12px; color:var(--orange); font-weight:500; margin-top:1px; }
+.ai-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+.ai-card { background:rgba(255,255,255,0.75); border:1px solid var(--border); border-radius:14px; padding:12px; }
+.ai-card-title { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-soft); margin-bottom:8px; }
+.ai-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.ai-chip { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.9); border:1px solid var(--border); border-radius:20px; padding:3px 8px 3px 5px; font-size:11px; color:var(--text-mid); }
+.ai-chip-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+.ai-insight { background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.06)); border-left:3px solid var(--orange); border-radius:0 12px 12px 0; padding:12px 14px; font-size:13px; color:var(--text-mid); line-height:1.6; margin-bottom:10px; }
+
+/* RESULTS */
+.results-wrap { max-width:900px; margin:0 auto; padding:0 1.5rem 4rem; }
+.placeholder-msg { text-align:center; padding:4rem 2rem; color:var(--text-soft); font-size:15px; background:var(--card-bg); border:1.5px dashed var(--border); border-radius:20px; }
+.placeholder-msg .icon { font-size:36px; display:block; margin-bottom:12px; }
+.result-header { background:linear-gradient(135deg,#FFF4E6,#FDE8CF); border:1.5px solid var(--border); border-radius:20px; padding:1.8rem; display:flex; align-items:center; gap:20px; margin-bottom:1.5rem; animation:fadeIn 0.4s ease; }
+.result-swatch-lg { width:80px; height:80px; border-radius:50%; border:4px solid #fff; box-shadow:0 4px 20px rgba(0,0,0,0.12); flex-shrink:0; }
+.result-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text-dark); }
+.result-subtitle { font-size:13px; color:var(--orange); font-weight:500; margin:2px 0; text-transform:uppercase; letter-spacing:1px; }
+.result-desc { font-size:13px; color:var(--text-mid); line-height:1.6; margin-top:4px; }
+
+/* TABS */
+.tabs { display:flex; gap:6px; background:rgba(255,244,230,0.8); border:1px solid var(--border); border-radius:14px; padding:5px; margin-bottom:1.5rem; flex-wrap:wrap; animation:fadeIn 0.5s ease; }
+.tab-btn { flex:1; min-width:90px; background:transparent; border:none; padding:10px 10px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--text-soft); cursor:pointer; transition:all 0.25s; white-space:nowrap; text-align:center; }
+.tab-btn:hover { color:var(--orange); background:rgba(232,98,26,0.06); }
+.tab-btn.active { background:var(--orange); color:#fff; box-shadow:0 4px 14px rgba(232,98,26,0.3); }
+.tab-content { display:none; animation:fadeIn 0.3s ease; }
+.tab-content.active { display:block; }
+
+/* CARDS */
+.card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:18px; padding:1.4rem; margin-bottom:1rem; }
+.card-title { font-size:13px; font-weight:500; color:var(--text-soft); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+.card-title .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); }
+.wear-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.wear-tag { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; padding:3px 12px; border-radius:20px; }
+.tip-box { background:linear-gradient(135deg,rgba(232,98,26,0.07),rgba(201,149,42,0.07)); border-left:3px solid var(--orange); border-radius:0 12px 12px 0; padding:12px 16px; font-size:13px; color:var(--text-mid); line-height:1.6; margin-top:8px; }
+.tip-box strong { color:var(--orange); }
+
+/* COLOUR CARDS */
+.colour-cards-grid { display:flex; flex-direction:column; gap:8px; }
+.colour-card { background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; display:flex; align-items:flex-start; gap:12px; transition:all 0.25s; }
+.colour-card:hover { border-color:var(--orange); transform:translateX(3px); box-shadow:0 4px 16px rgba(232,98,26,0.1); }
+.colour-card-swatch { width:52px; height:52px; border-radius:12px; flex-shrink:0; border:2px solid rgba(255,255,255,0.6); box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+.colour-card-info { flex:1; }
+.colour-card-name { font-size:14px; font-weight:500; color:var(--text-dark); margin-bottom:3px; }
+.colour-card-why { font-size:12px; color:var(--text-soft); line-height:1.5; margin-bottom:6px; }
+.colour-card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.colour-card-occasion { font-size:10px; font-weight:500; color:var(--orange); background:rgba(232,98,26,0.08); border-radius:20px; padding:2px 8px; text-transform:uppercase; letter-spacing:0.5px; }
+.rating-stars { display:flex; gap:2px; }
+.star { width:12px; height:12px; border-radius:2px; }
+.star.filled { background:var(--gold); }
+.star.empty { background:rgba(201,149,42,0.2); }
+.best-badge { display:inline-block; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-left:6px; vertical-align:middle; }
+.avoid-card { background:rgba(255,255,255,0.7); border:1px solid rgba(200,60,60,0.15); border-radius:12px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; }
+.avoid-card-dot { width:36px; height:36px; border-radius:10px; flex-shrink:0; border:1.5px solid rgba(0,0,0,0.08); }
+.avoid-card-info { flex:1; }
+.avoid-card-name { font-size:13px; font-weight:500; color:var(--text-dark); margin-bottom:2px; }
+.avoid-x-badge { color:#C0392B; font-size:11px; font-weight:700; margin-left:6px; }
+.avoid-card-why { font-size:12px; color:var(--text-soft); line-height:1.4; }
+
+/* MAKEUP / JEWELRY / FOOTWEAR */
+.chips-wrap { display:flex; flex-wrap:wrap; gap:10px; }
+.chip { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.chip-dot { width:44px; height:44px; border-radius:50%; border:2px solid rgba(255,255,255,0.8); box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:transform 0.2s; }
+.chip:hover .chip-dot { transform:scale(1.15); }
+.chip-name { font-size:10px; color:var(--text-soft); text-align:center; max-width:52px; line-height:1.3; }
+.chip-type { font-size:9px; color:var(--orange); font-weight:500; text-align:center; max-width:52px; }
+.detail-tip { font-size:11px; color:var(--text-soft); margin-top:4px; font-style:italic; }
+
+/* SEASONAL */
+.season-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.season-card { border-radius:16px; padding:1.2rem; border:1.5px solid transparent; }
+.season-card.spring { background:linear-gradient(135deg,#FFF9F0,#FFF0D6); border-color:rgba(240,180,60,0.3); }
+.season-card.summer { background:linear-gradient(135deg,#FFF5F0,#FFE8DC); border-color:rgba(232,98,26,0.25); }
+.season-card.autumn { background:linear-gradient(135deg,#F8F0E8,#F0DCC8); border-color:rgba(180,90,20,0.3); }
+.season-card.winter { background:linear-gradient(135deg,#EEF4FF,#E4EEFF); border-color:rgba(80,100,200,0.2); }
+.season-icon { font-size:22px; margin-bottom:8px; }
+.season-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-dark); }
+.season-tip { font-size:12px; color:var(--text-mid); line-height:1.5; margin-bottom:10px; }
+
+/* SHOP */
+.shop-intro-text { font-size:13px; color:var(--text-mid); background:linear-gradient(135deg,rgba(232,98,26,0.06),rgba(201,149,42,0.06)); border-left:3px solid var(--gold); border-radius:0 12px 12px 0; padding:10px 14px; line-height:1.6; margin-bottom:1rem; }
+.shop-section-title { font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-soft); margin:1.2rem 0 0.6rem; }
+.shop-grid { display:flex; flex-direction:column; gap:8px; }
+.shop-card { display:flex; align-items:center; gap:12px; background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; text-decoration:none; color:var(--text-dark); transition:all 0.22s; }
+.shop-card:hover { border-color:var(--orange); transform:translateX(4px); box-shadow:0 4px 16px rgba(232,98,26,0.12); }
+.shop-logo { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+.shop-info { flex:1; }
+.shop-site { font-size:11px; font-weight:500; color:var(--text-soft); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.shop-label { font-size:13px; color:var(--text-dark); }
+.shop-arrow { font-size:16px; color:var(--orange); flex-shrink:0; transition:transform 0.2s; }
+.shop-card:hover .shop-arrow { transform:translateX(4px); }
+
+/* API status */
+.api-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500; }
+.status-badge.online{background:rgba(39,174,96,0.12);color:#27ae60;display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;}
+.status-badge.online .status-dot{background:#27ae60;animation:blink 2s infinite;}
+.status-dot{width:7px;height:7px;border-radius:50%;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.api-status.ok { background:rgba(39,174,96,0.12); color:#27ae60; }
+.api-status.err { background:rgba(192,57,43,0.12); color:#c0392b; }
+.api-dot { width:7px; height:7px; border-radius:50%; }
+.api-status.ok .api-dot { background:#27ae60; animation:blink 2s infinite; }
+.api-status.err .api-dot { background:#c0392b; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+footer { text-align:center; padding:2rem; font-size:12px; color:var(--text-soft); border-top:1px solid var(--border); }
+.footer-logo { font-family:'Playfair Display',serif; font-size:20px; color:var(--orange); margin-bottom:6px; }
+
+@media(max-width:600px) {
+  .tone-grid { grid-template-columns:repeat(2,1fr); }
+  .season-grid,.ai-grid { grid-template-columns:1fr; }
+  .tabs { gap:4px; }
+  .tab-btn { font-size:12px; padding:8px 6px; min-width:70px; }
+  .result-header { flex-direction:column; text-align:center; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">Aaina <span>आईना · by Ananya Tyagi</span></div>
+  <div class="nav-right" id="navRight">
+    <span class="status-badge online"><span class="status-dot"></span>Backend online</span>
+    <button class="nav-btn" onclick="openAuth('login')">Log in</button>
+    <button class="nav-btn primary" onclick="openAuth('signup')">Sign up free</button>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="authModal">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="modal-logo">
+      <div class="modal-logo-text">Aaina</div>
+      <div class="modal-logo-sub">आईना · Mirror of Your True Colours</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Log in</button>
+      <button class="auth-tab" id="tab-signup-btn" onclick="switchAuthTab('signup')">Sign up</button>
+    </div>
+    <div id="loginForm">
+      <div class="modal-title">Welcome back</div>
+      <div class="modal-sub">Log in to access your personal colour palette</div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Enter your password"/></div>
+      <div class="form-err" id="loginErr"></div>
+      <button class="form-btn" id="loginBtn" onclick="doLogin()">✦ Log In</button>
+      <div class="form-divider">No account? <span class="switch-link" onclick="switchAuthTab('signup')">Sign up free</span></div>
+    </div>
+    <div id="signupForm" style="display:none;">
+      <div class="modal-title">Create your account</div>
+      <div class="modal-sub">Join Aaina and discover your perfect colour palette</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="signupName" placeholder="Your name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signupEmail" placeholder="you@email.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 6 characters"/></div>
+      <div class="form-err" id="signupErr"></div>
+      <button class="form-btn" id="signupBtn" onclick="doSignup()">✦ Create Account</button>
+      <div class="form-divider">Already have an account? <span class="switch-link" onclick="switchAuthTab('login')">Log in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">✦ Beauty Guide for Indian Skin ✦</div>
+  <div style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,5.5rem);font-weight:700;letter-spacing:2px;color:var(--orange);line-height:1;margin-bottom:0.3rem;">Aaina</div>
+  <div style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;font-weight:500;">आईना · Mirror of Your True Colours</div>
+  <h1>Discover Your<br/><em>Perfect Palette</em></h1>
+  <p class="hero-sub">A complete colour analysis guide for Indian skin tones — clothing, makeup, jewelry, footwear, and seasonal palettes, tailored just for you.</p>
+  <div class="hero-divider"><span>✦</span></div>
+</header>
+
+<!-- TONE SELECTOR -->
+<section class="tone-section">
+  <div id="toneGateBanner" class="gate-banner" style="display:none;">
+    <div class="gate-banner-title">🔒 Log in to select your skin tone</div>
+    <div class="gate-banner-sub">Create a free account to unlock your personalised colour palette</div>
+    <div class="gate-banner-btns">
+      <button class="gate-btn" onclick="openAuth('login')">Log in</button>
+      <button class="gate-btn primary" onclick="openAuth('signup')">Sign up free</button>
+    </div>
+  </div>
+  <div id="toneContent">
+    <div class="section-label">Step 1 — Select your skin tone</div>
+    <div class="tone-grid" id="toneGrid"></div>
+  </div>
+</section>
+
+<!-- SELFIE -->
+<section class="selfie-section">
+  <div class="section-label">— or detect instantly —</div><br/>
+  <div id="selfieGateBanner" class="gate-banner" style="display:none;">
+    <div class="gate-banner-title">🔒 Log in to use Selfie Detector</div>
+    <div class="gate-banner-sub">Sign in to upload your photo and get an instant skin tone analysis</div>
+    <div class="gate-banner-btns">
+      <button class="gate-btn" onclick="openAuth('login')">Log in</button>
+      <button class="gate-btn primary" onclick="openAuth('signup')">Sign up free</button>
+    </div>
+  </div>
+  <div class="selfie-outer" id="selfieContent">
+    <div class="selfie-header">
+      <div class="selfie-icon-wrap">🪞</div>
+      <div>
+        <div class="selfie-title">Selfie Skin Tone Detector</div>
+        <div class="selfie-subtitle">Upload your photo — Aaina reads your skin pixels and fetches your palette from the backend</div>
+      </div>
+    </div>
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)"/>
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Upload your selfie</div>
+      <div class="upload-sub">Click to browse or drag & drop · JPG, PNG, WEBP</div>
+    </div>
+    <div class="preview-wrap" id="previewWrap">
+      <img id="previewImg" src="" alt="Your selfie"/>
+      <button class="preview-change" onclick="resetUpload()">Change photo</button>
+    </div>
+    <button class="analyse-btn" id="analyseBtn" onclick="analyseSelfie()" disabled>✦ Detect My Skin Tone</button>
+    <div class="err-msg" id="errMsg"></div>
+    <div class="loading-pulse" id="loadingPulse">
+      <span class="pulse-dot"></span><span class="pulse-dot"></span><span class="pulse-dot"></span>
+      <div style="margin-top:10px;">Aaina is reading your complexion…</div>
+    </div>
+    <div class="ai-result" id="aiResult"></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-wrap" id="resultsWrap">
+  <div class="placeholder-msg" id="placeholder">
+    <span class="icon">🎨</span>
+    Select your skin tone above to unlock your personalised colour story
+  </div>
+  <div id="resultBox" style="display:none;"></div>
+</section>
+
+<footer>
+  <div class="footer-logo">Aaina · आईना</div>
+  <p style="margin-bottom:6px;">Color Analysis for Every Indian Skin Tone</p>
+  <p style="font-size:11px;color:var(--text-soft);margin-top:6px;">Crafted with love by <strong style="color:var(--orange);font-weight:500;">Ananya Tyagi</strong></p>
+</footer>
+</div>
+
+<script>
+
+// 
+// -- AAINA BUILT ---IN BACKEND ENGINE — always online, no server
+// 
+const COLOUR_DATA = {
+  fair: {
+    name: 'Fair',
+    range: 'Porcelain · Light · Ivory',
+    swatch: '#EBC9B0',
+    desc: 'Warm ivory with peachy or rosy undertones. Common in North and Northeast India.',
+    clothing: {
+      best: [
+        { hex: '#4B2D8F', name: 'Royal Purple',   why: 'Creates rich contrast against fair skin, making your complexion luminous', rating: 5, occasion: 'Parties & weddings' },
+        { hex: '#1B5E8F', name: 'Cobalt Blue',    why: 'Cool jewel tones complement peachy undertones beautifully',               rating: 5, occasion: 'Office & formal' },
+        { hex: '#8B0000', name: 'Wine Red',        why: 'Deep red adds drama and warmth without washing you out',                  rating: 5, occasion: 'Festive & evening' },
+        { hex: '#2E7D32', name: 'Emerald Green',  why: 'Rich green creates a stunning contrast with ivory skin',                  rating: 4, occasion: 'Casual & outings' },
+        { hex: '#C94B27', name: 'Burnt Orange',   why: 'Earthy warmth brings a sun-kissed glow to fair skin',                    rating: 4, occasion: 'Casual & daytime' },
+        { hex: '#004D40', name: 'Deep Teal',      why: 'Cool-warm balance that flatters peachy-ivory undertones perfectly',       rating: 4, occasion: 'Semi-formal' },
+        { hex: '#880E4F', name: 'Deep Pink',      why: 'Vibrant pink against fair skin creates a classic Indian beauty look',     rating: 5, occasion: 'Festive & celebrations' },
+        { hex: '#7B3F00', name: 'Chocolate',      why: 'Deep earthy brown grounds fair skin with cozy elegance',                  rating: 3, occasion: 'Everyday & relaxed' },
+      ],
+      avoid: [
+        { hex: '#F5F5DC', name: 'Beige',      why: 'Too close to fair skin — makes you look washed out' },
+        { hex: '#FFFACD', name: 'Pale Yellow',why: 'Clashes with peachy undertones and dulls your complexion' },
+        { hex: '#E8D5C4', name: 'Blush Nude', why: 'Blends into fair skin — creates a flat, no-contrast look' },
+      ],
+      traditional: [
+        { hex: '#8B0000', name: 'Deep Red Lehenga',    why: 'Classic bridal red — creates a powerful, radiant look', rating: 5, occasion: 'Weddings & pujas' },
+        { hex: '#4B2D8F', name: 'Violet Saree',        why: 'Jewel-toned violet makes fair complexion look ethereal', rating: 5, occasion: 'Festive occasions' },
+        { hex: '#006400', name: 'Dark Green Suit',     why: 'Rich forest green creates a regal contrast with ivory skin', rating: 4, occasion: 'Eid, Diwali, parties' },
+        { hex: '#880E4F', name: 'Magenta Dupatta',     why: 'Pop of hot pink adds festive energy against fair skin', rating: 5, occasion: 'Sangeet & Haldi' },
+        { hex: '#1B5E8F', name: 'Royal Blue Kurta',   why: 'Cool royal blue gives a crisp, polished ethnic look', rating: 4, occasion: 'Office & casual ethnic' },
+        { hex: '#7B3F00', name: 'Chocolate Sherwani', why: 'Deep earthy brown adds sophistication to fair complexion', rating: 3, occasion: 'Casual ethnic events' },
+      ],
+      western: [
+        { hex: '#2E7D32', name: 'Emerald Blazer',    why: 'Jewel-green blazer over white makes fair skin pop dramatically', rating: 5, occasion: 'Office & parties' },
+        { hex: '#1B5E8F', name: 'Navy Jeans',        why: 'Dark navy is the most flattering denim shade for fair skin',     rating: 5, occasion: 'Everyday casual' },
+        { hex: '#C94B27', name: 'Rust Top',          why: 'Warm rust adds a sun-kissed glow — perfect for daytime looks',   rating: 4, occasion: 'Brunches & outings' },
+        { hex: '#4B2D8F', name: 'Plum Dress',        why: 'Deep plum creates an effortlessly elegant evening look',         rating: 5, occasion: 'Dinners & events' },
+        { hex: '#2C2C2C', name: 'Charcoal Trousers', why: 'Charcoal offers contrast without harshness of jet black',        rating: 4, occasion: 'Formal & office' },
+        { hex: '#8B0000', name: 'Wine Coat',         why: 'A wine-red coat is a power statement for fair-skinned women',    rating: 5, occasion: 'Winter & formal' },
+      ],
+    },
+    makeup: [
+      { hex: '#E8896A', name: 'Peach Blush',  type: 'Blush',      tip: 'Apply to apples of cheeks for a natural flush' },
+      { hex: '#C0392B', name: 'Berry Lip',    type: 'Lipstick',   tip: 'Bold berry lip with minimal eye makeup is perfection' },
+      { hex: '#F4A460', name: 'Nude Beige',   type: 'Lip & Base', tip: 'Warm nude slightly deeper than your skin looks natural' },
+      { hex: '#8B0000', name: 'Deep Red',     type: 'Lipstick',   tip: 'Classic red lip — pair with clean, minimal makeup' },
+      { hex: '#D4888A', name: 'Rose Pink',    type: 'Blush & Lip',tip: 'Rosy pink is your most versatile everyday shade' },
+      { hex: '#A0522D', name: 'Mocha',        type: 'Lipstick',   tip: 'Warm mocha for daytime looks — flattering and easy' },
+    ],
+    jewelry: [
+      { hex: '#FFD700', name: 'Yellow Gold',  metal: true,  tip: 'Classic yellow gold enhances warm peachy undertones' },
+      { hex: '#E8C8A0', name: 'Rose Gold',    metal: true,  tip: 'Rose gold is especially flattering for fair Indian skin' },
+      { hex: '#50C878', name: 'Emerald',      metal: false, tip: 'Deep green stones create stunning contrast' },
+      { hex: '#E0115F', name: 'Ruby',         metal: false, tip: 'Ruby red stones complement fair skin beautifully' },
+      { hex: '#9B59B6', name: 'Amethyst',     metal: false, tip: 'Purple stones echo jewel-tone clothing palette' },
+      { hex: '#3F51B5', name: 'Sapphire',     metal: false, tip: 'Blue sapphire against fair skin is timelessly elegant' },
+    ],
+    footwear: [
+      { hex: '#7B3F00', name: 'Tan Brown',      tip: 'Neutral tan works for both ethnic and western looks' },
+      { hex: '#800000', name: 'Burgundy',        tip: 'Deep burgundy is a sophisticated choice for all occasions' },
+      { hex: '#1B1B2F', name: 'Midnight Navy',   tip: 'Navy is a smarter alternative to basic black' },
+      { hex: '#2C2C2C', name: 'Classic Black',   tip: 'Timeless black works with everything' },
+      { hex: '#C8A97E', name: 'Nude Beige',      tip: 'Leg-elongating nude in a shade slightly deeper than your skin' },
+      { hex: '#4B2D8F', name: 'Deep Purple',     tip: 'Statement purple footwear for festive looks' },
+    ],
+    seasons: {
+      spring: { tip: 'Soft pastels with a warm blush — peach, lilac, warm mint', colours: ['#F4A7A0','#B5A4D8','#89C4A3','#F7C5A0'] },
+      summer: { tip: 'Crisp jewel tones — cobalt, fuchsia, clear red', colours: ['#1B5E8F','#E91E8C','#C62828','#00838F'] },
+      autumn: { tip: 'Deep spiced earth tones — rust, burnt sienna, forest green', colours: ['#C94B27','#7B3F00','#2E7D32','#880E4F'] },
+      winter: { tip: 'Bold contrasts — pure white, black, vivid jewel tones', colours: ['#1C1C1C','#FFFFFF','#4B2D8F','#8B0000'] },
+    },
+    styleTip: 'Bold jewel tones and deep earthy shades create stunning contrast. Avoid colors too close to your skin tone.',
+  },
+
+  wheatish: {
+    name: 'Wheatish',
+    range: 'Golden · Medium · Warm',
+    swatch: '#C8956C',
+    desc: 'Golden-brown warm undertones with a sun-kissed glow. The most common Indian skin tone.',
+    clothing: {
+      best: [
+        { hex: '#FF8C00', name: 'Deep Orange',  why: 'Warm orange mirrors your golden undertones — instant radiance booster', rating: 5, occasion: 'Festive & casual' },
+        { hex: '#B8860B', name: 'Dark Golden',  why: 'Golden-brown is your most natural power colour — made for wheatish skin', rating: 5, occasion: 'Weddings & parties' },
+        { hex: '#6B3FA0', name: 'Purple',       why: 'Warm-cool contrast that makes wheatish skin glow', rating: 4, occasion: 'Evening & formal' },
+        { hex: '#CC0000', name: 'Cherry Red',   why: 'Bold red is a timeless match for warm golden complexion', rating: 5, occasion: 'All occasions' },
+        { hex: '#008B8B', name: 'Dark Cyan',    why: 'Deep teal creates a refreshing contrast with warm undertones', rating: 4, occasion: 'Office & semi-formal' },
+        { hex: '#556B2F', name: 'Olive Green',  why: 'Earthy olive echoes warm undertones for a natural harmony', rating: 4, occasion: 'Casual & outdoors' },
+        { hex: '#FF69B4', name: 'Hot Pink',     why: 'Vibrant pink against golden skin creates a stunning Indian look', rating: 5, occasion: 'Celebrations & parties' },
+        { hex: '#1F4E79', name: 'Cobalt Blue',  why: 'Deep cobalt offers cool contrast that makes warm skin radiant', rating: 4, occasion: 'Formal & office' },
+      ],
+      avoid: [
+        { hex: '#F5DEB3', name: 'Wheat',         why: 'Blends with your skin — zero contrast or definition' },
+        { hex: '#FAEBD7', name: 'Antique White', why: 'Warm pale shade makes wheatish skin look dull and sallow' },
+        { hex: '#C2B280', name: 'Sandy Beige',   why: 'Too close to complexion — completely washes you out' },
+      ],
+      traditional: [
+        { hex: '#FF8C00', name: 'Orange Saree',      why: 'Warm orange is the quintessential colour for wheatish skin — pure radiance', rating: 5, occasion: 'Navratri, Diwali, weddings' },
+        { hex: '#B8860B', name: 'Golden Lehenga',    why: 'Antique gold lehenga brings out the warmth in your complexion', rating: 5, occasion: 'Weddings & sangeets' },
+        { hex: '#CC0000', name: 'Crimson Salwar',    why: 'Rich crimson gives wheatish skin a festive, vibrant glow', rating: 5, occasion: 'Festivals & pujas' },
+        { hex: '#008B8B', name: 'Teal Kurta',        why: 'Deep teal creates a refreshing contrast with warm golden skin', rating: 4, occasion: 'Office & casual ethnic' },
+        { hex: '#6B3FA0', name: 'Purple Sherwani',   why: 'Jewel-purple ethnic wear makes wheatish skin look regal', rating: 4, occasion: 'Weddings & formal ethnic' },
+        { hex: '#556B2F', name: 'Olive Anarkali',    why: 'Earthy olive harmonises with your natural warm undertones', rating: 3, occasion: 'Casual & everyday ethnic' },
+      ],
+      western: [
+        { hex: '#CC0000', name: 'Red Midi Dress',       why: 'A bold red dress is a showstopper against warm golden complexion', rating: 5, occasion: 'Dates, parties & events' },
+        { hex: '#FF8C00', name: 'Burnt Orange Blazer',  why: 'Warm orange blazer channels your undertone — effortlessly stylish', rating: 5, occasion: 'Office & casual chic' },
+        { hex: '#1F4E79', name: 'Dark Denim',           why: 'Deep indigo denim creates excellent contrast with wheatish skin', rating: 5, occasion: 'Everyday casual' },
+        { hex: '#6B3FA0', name: 'Purple Shift Dress',   why: 'Purple dresses make golden-brown skin look luxuriously warm', rating: 4, occasion: 'Parties & evenings out' },
+        { hex: '#FF69B4', name: 'Hot Pink Top',         why: 'Vivid pink paired with wheatish skin is a classic Indian pop of colour', rating: 4, occasion: 'Brunches & casual outings' },
+        { hex: '#2C2C2C', name: 'Black Trousers',       why: 'Black bottoms with warm tops create a perfect balanced look', rating: 4, occasion: 'Formal & office' },
+      ],
+    },
+    makeup: [
+      { hex: '#D2691E', name: 'Copper Bronze', type: 'Highlighter', tip: 'Bronze glow on cheekbones amplifies your golden undertones' },
+      { hex: '#C0392B', name: 'Brick Red',     type: 'Lipstick',    tip: 'Warm brick red lip is your ultimate everyday power shade' },
+      { hex: '#8B4513', name: 'Warm Nude',     type: 'Lip & Base',  tip: 'Your nude should always lean warm-brown, never pink' },
+      { hex: '#FF6B6B', name: 'Coral',         type: 'Lip & Blush', tip: 'Coral is your summer go-to — fresh and vibrant' },
+      { hex: '#B5451B', name: 'Terracotta',    type: 'Blush',       tip: 'Terracotta blush mimics a natural sun-kissed flush' },
+      { hex: '#A52A2A', name: 'Brown-Red',     type: 'Lipstick',    tip: 'Deep brown-red for an effortlessly warm evening look' },
+    ],
+    jewelry: [
+      { hex: '#FFD700', name: 'Gold',         metal: true,  tip: 'Yellow gold is your perfect metal — always wear it boldly' },
+      { hex: '#B8860B', name: 'Antique Gold', metal: true,  tip: 'Antique gold jewelry complements your warm, earthy undertones' },
+      { hex: '#FF8C00', name: 'Amber',        metal: false, tip: 'Warm amber stones mirror your golden skin beautifully' },
+      { hex: '#228B22', name: 'Forest Green', metal: false, tip: 'Deep green stones create rich contrast with warm skin' },
+      { hex: '#DC143C', name: 'Crimson Ruby', metal: false, tip: 'Red stones are your most traditional and flattering gem choice' },
+      { hex: '#1F4E79', name: 'Lapis Blue',   metal: false, tip: 'Deep blue lapis creates stunning cool-warm contrast' },
+    ],
+    footwear: [
+      { hex: '#8B4513', name: 'Saddle Brown', tip: 'Warm brown leather is your most versatile footwear choice' },
+      { hex: '#D2691E', name: 'Warm Camel',   tip: 'Camel tones harmonise with golden undertones naturally' },
+      { hex: '#800000', name: 'Maroon',        tip: 'Deep maroon is timeless and flattering for warm complexions' },
+      { hex: '#2C2C2C', name: 'Black',         tip: 'Classic black works for all occasions — pair with bold clothes' },
+      { hex: '#FF8C00', name: 'Rust Orange',   tip: 'Statement rust shoes are a beautiful extension of your colour palette' },
+      { hex: '#B8860B', name: 'Antique Gold',  tip: 'Gold sandals for ethnic looks — always a winning combination' },
+    ],
+    seasons: {
+      spring: { tip: 'Warm pastels — coral peach, golden yellow, marigold', colours: ['#FFAB76','#F7DC6F','#F4A460','#F08080'] },
+      summer: { tip: 'Bold brights — fuchsia, turquoise, vivid red',        colours: ['#CC0000','#FF69B4','#008B8B','#FF8C00'] },
+      autumn: { tip: 'Your season! Harvest tones — burnt orange, mustard, terracotta', colours: ['#FF8C00','#B8860B','#8B4513','#556B2F'] },
+      winter: { tip: 'Rich deep tones — ruby, cobalt, forest green, gold',  colours: ['#CC0000','#1F4E79','#228B22','#B8860B'] },
+    },
+    styleTip: 'Your warm golden skin glows in earthy and spiced tones. Oranges, brick reds, and jewel-toned purples make you shine!',
+  },
+
+  dusky: {
+    name: 'Dusky',
+    range: 'Olive · Medium-deep · Rich',
+    swatch: '#9B6347',
+    desc: 'Deep warm undertone with olive or rich brown hues. Common in South and Central India. Naturally radiant skin that carries vibrant colours effortlessly.',
+    clothing: {
+      best: [
+        { hex: '#FFD700', name: 'Gold Yellow',  why: 'Bright gold against dusky skin is breathtaking — pure radiance', rating: 5, occasion: 'Weddings & festive' },
+        { hex: '#FF4500', name: 'Red Orange',   why: 'Electric red-orange creates a fiery, stunning contrast with olive skin', rating: 5, occasion: 'Festive & bold' },
+        { hex: '#8B008B', name: 'Magenta',      why: 'Bold magenta makes dusky skin look vibrant and alive', rating: 5, occasion: 'Parties & celebrations' },
+        { hex: '#00CED1', name: 'Turquoise',    why: 'Cool turquoise creates jaw-dropping contrast with warm olive skin', rating: 5, occasion: 'Beach & casual' },
+        { hex: '#32CD32', name: 'Lime Green',   why: 'Electric lime looks extraordinary against rich dusky complexions', rating: 4, occasion: 'Casual & summer' },
+        { hex: '#FF1493', name: 'Deep Pink',    why: 'Vivid hot pink is a classic match that makes dusky skin radiate', rating: 5, occasion: 'All occasions' },
+        { hex: '#FFFFFF', name: 'Pure White',   why: 'Pure white creates the most powerful contrast with dusky skin', rating: 5, occasion: 'Summer & daytime' },
+        { hex: '#E0E0E0', name: 'Silver Gray',  why: 'Cool silver-gray creates sophisticated contrast with warm olive skin', rating: 3, occasion: 'Formal & office' },
+      ],
+      avoid: [
+        { hex: '#808080', name: 'Dull Gray',   why: 'Muddy gray kills the natural warmth and glow of dusky skin' },
+        { hex: '#A9A9A9', name: 'Stone Gray',  why: 'Muted cool grays clash with warm olive undertones, looking ashy' },
+        { hex: '#654321', name: 'Dark Brown',  why: 'Too close to your skin tone — creates a flat undefined look' },
+      ],
+      traditional: [
+        { hex: '#FFD700', name: 'Gold Kanjivaram',    why: 'A gold Kanjivaram saree on dusky skin is the most iconic South Indian beauty look', rating: 5, occasion: 'Weddings & temple visits' },
+        { hex: '#FF1493', name: 'Deep Pink Lehenga',  why: 'Hot pink lehenga makes dusky skin look absolutely electrifying', rating: 5, occasion: 'Sangeet, mehendi & parties' },
+        { hex: '#00CED1', name: 'Turquoise Saree',    why: 'Teal-turquoise saree is a classic pairing that makes olive skin sing', rating: 5, occasion: 'Festivals & formal events' },
+        { hex: '#8B008B', name: 'Magenta Kurta',      why: 'Bold magenta against dusky skin is a traditional showstopper', rating: 5, occasion: 'Pujas & casual ethnic' },
+        { hex: '#FF4500', name: 'Bright Orange',      why: 'Saffron-orange ethnic wear brings out the warm richness of dusky skin', rating: 4, occasion: 'Navratri & festive' },
+        { hex: '#32CD32', name: 'Lime Green Dupatta', why: 'A bright green dupatta accent creates a vibrant festive look', rating: 4, occasion: 'Casual ethnic & outings' },
+      ],
+      western: [
+        { hex: '#FFFFFF', name: 'White Dress',       why: 'A crisp white dress against dusky skin is the ultimate power look', rating: 5, occasion: 'Summer, brunches & events' },
+        { hex: '#FFD700', name: 'Yellow Sundress',   why: 'Sunshine yellow makes dusky skin look absolutely radiant outdoors', rating: 5, occasion: 'Casual & beach' },
+        { hex: '#00CED1', name: 'Teal Blazer',       why: 'Teal blazer over neutral separates creates a bold professional statement', rating: 4, occasion: 'Office & formal' },
+        { hex: '#FF1493', name: 'Hot Pink Co-ord',   why: 'Hot pink co-ord set makes dusky skin the centre of attention', rating: 5, occasion: 'Parties & nights out' },
+        { hex: '#FF4500', name: 'Orange Top',        why: 'Warm orange tops bring out the natural warmth in olive-toned skin', rating: 4, occasion: 'Casual & brunches' },
+        { hex: '#32CD32', name: 'Lime Linen Set',    why: 'Lime green linen sets look fresh and vibrant on dusky skin', rating: 4, occasion: 'Daytime & outdoor' },
+      ],
+    },
+    makeup: [
+      { hex: '#FF6347', name: 'Tomato Coral', type: 'Lip & Blush', tip: 'Coral with warm-red undertones is your everyday power shade' },
+      { hex: '#FFD700', name: 'Gold Shimmer', type: 'Highlighter', tip: 'Gold highlighter on cheekbones makes dusky skin radiate' },
+      { hex: '#DC143C', name: 'Crimson Lip',  type: 'Lipstick',    tip: 'Bold crimson lip against dusky skin is timelessly stunning' },
+      { hex: '#FF8C00', name: 'Amber Glow',   type: 'Eyeshadow',   tip: 'Warm amber eye look with gold liner is your signature' },
+      { hex: '#C71585', name: 'Magenta Pink', type: 'Lipstick',    tip: 'Vivid magenta lip is the boldest, most beautiful choice' },
+      { hex: '#8B0000', name: 'Dark Ruby',    type: 'Lipstick',    tip: 'Deep ruby for evening — dramatic and irresistibly rich' },
+    ],
+    jewelry: [
+      { hex: '#FFD700', name: 'Yellow Gold',  metal: true,  tip: 'Heavy gold jewelry on dusky skin is a timeless South Indian tradition' },
+      { hex: '#00CED1', name: 'Turquoise',    metal: false, tip: 'Turquoise stones create a magical contrast with olive skin' },
+      { hex: '#FF4500', name: 'Coral Gem',    metal: false, tip: 'Warm coral stones mirror the richness of your complexion' },
+      { hex: '#ADFF2F', name: 'Jade Green',   metal: false, tip: 'Jade and green stones look extraordinary against dusky skin' },
+      { hex: '#FF1493', name: 'Pink Sapphire',metal: false, tip: 'Bold pink gemstones make dusky skin look vibrant and regal' },
+      { hex: '#C0C0C0', name: 'Silver',       metal: true,  tip: 'Cool silver creates a refreshing contrast with warm olive skin' },
+    ],
+    footwear: [
+      { hex: '#FFD700', name: 'Golden Sandal', tip: 'Gold footwear with dusky skin is a classic Indian beauty combination' },
+      { hex: '#FF4500', name: 'Rusty Orange',  tip: 'Warm orange shoes extend your boldest colour palette to your feet' },
+      { hex: '#FFFFFF', name: 'White',          tip: 'White footwear creates maximum contrast — stunning in summer' },
+      { hex: '#2C2C2C', name: 'Black',          tip: 'Classic black grounds bold outfit colours beautifully' },
+      { hex: '#00CED1', name: 'Turquoise',      tip: 'Statement turquoise footwear is unexpected and breathtaking' },
+      { hex: '#C0C0C0', name: 'Silver',         tip: 'Silver metallic sandals are endlessly versatile for festive looks' },
+    ],
+    seasons: {
+      spring: { tip: 'Electric florals — bright fuchsia, lime green, vivid coral', colours: ['#FF1493','#32CD32','#FF6347','#00CED1'] },
+      summer: { tip: 'White, gold and neon tones for sun-kissed radiance',         colours: ['#FFFFFF','#FFD700','#FF4500','#8B008B'] },
+      autumn: { tip: 'Bold harvest brights — orange, gold, electric teal, magenta', colours: ['#FF4500','#FFD700','#00CED1','#FF1493'] },
+      winter: { tip: 'Stark contrasts — pure white, black and jewel-bright pops',  colours: ['#FFFFFF','#1C1C1C','#8B008B','#32CD32'] },
+    },
+    styleTip: 'Bright, saturated and vibrant colours are your best friends! White, gold and electric hues create stunning contrast.',
+  },
+
+  deep: {
+    name: 'Deep',
+    range: 'Dark · Rich · Radiant',
+    swatch: '#6B3D2E',
+    desc: 'Rich deep brown with cool or warm undertones. Radiant, bold and naturally luminous skin that makes every vivid colour pop.',
+    clothing: {
+      best: [
+        { hex: '#FFD700', name: 'Gold',          why: 'Gold against deep skin is the most stunning combination — absolute royalty', rating: 5, occasion: 'All occasions' },
+        { hex: '#FF6600', name: 'Vivid Orange',  why: 'Bright orange makes deep skin look incredibly vibrant and powerful',        rating: 5, occasion: 'Festive & bold' },
+        { hex: '#00FFFF', name: 'Cyan',           why: 'Electric cyan creates breathtaking cool-warm contrast with dark skin',      rating: 5, occasion: 'Parties & summer' },
+        { hex: '#7FFF00', name: 'Chartreuse',    why: 'Bold yellow-green pops magnificently against deep rich complexions',        rating: 4, occasion: 'Casual & bold' },
+        { hex: '#FF0080', name: 'Electric Pink', why: 'Neon pink is extraordinary on deep skin — looks regal not garish',         rating: 5, occasion: 'Parties & celebrations' },
+        { hex: '#FFFFFF', name: 'White',          why: 'Pure white creates the highest contrast — the ultimate power statement',    rating: 5, occasion: 'All occasions' },
+        { hex: '#E0115F', name: 'Ruby Red',       why: 'Deep ruby red makes dark skin look fiercely glamorous',                    rating: 5, occasion: 'Festive & evening' },
+        { hex: '#9ACD32', name: 'Yellow Green',  why: 'Fresh yellow-green creates an unexpected and beautiful contrast',          rating: 4, occasion: 'Casual & outdoors' },
+      ],
+      avoid: [
+        { hex: '#3B2314', name: 'Very Dark Brown', why: 'Too close to your skin tone — creates no contrast or definition' },
+        { hex: '#1C1C1C', name: 'Near Black',      why: 'Blends with deep skin completely — wear as accent only, never head-to-toe' },
+        { hex: '#5C4033', name: 'Deep Umber',      why: 'Dark brown-gray tones blend with deep skin, dulling your natural radiance' },
+      ],
+      traditional: [
+        { hex: '#FFD700', name: 'Gold Banarasi',       why: 'Gold Banarasi on deep skin is the pinnacle of Indian elegance — regal',   rating: 5, occasion: 'Weddings & formal events' },
+        { hex: '#FF0080', name: 'Electric Pink Lehenga',why: 'Bright fuchsia lehenga against deep skin is jaw-dropping',               rating: 5, occasion: 'Sangeet & celebrations' },
+        { hex: '#FFFFFF', name: 'White Kurta',          why: 'Crisp white kurta creates the most powerful contrast against deep skin',  rating: 5, occasion: 'Casual ethnic & daytime' },
+        { hex: '#FF6600', name: 'Saffron Saree/Dhoti', why: 'Saffron is sacred and stunning — radiates beautifully against deep skin', rating: 5, occasion: 'Festivals & religious events' },
+        { hex: '#E0115F', name: 'Ruby Red Sherwani',    why: 'Deep ruby ethnic wear makes dark skin look dramatically glamorous',       rating: 5, occasion: 'Weddings & formal' },
+        { hex: '#00FFFF', name: 'Cyan Dupatta',         why: 'Electric cyan dupatta as accent creates a bold modern ethnic look',       rating: 4, occasion: 'Festive & casual ethnic' },
+      ],
+      western: [
+        { hex: '#FFFFFF', name: 'White Linen Suit',  why: 'A white suit on deep skin is the ultimate power look — stunning',      rating: 5, occasion: 'Office, events & formals' },
+        { hex: '#FFD700', name: 'Yellow Midi Dress', why: 'Sunshine yellow dress makes deep skin absolutely radiant',              rating: 5, occasion: 'Parties & occasions' },
+        { hex: '#FF0080', name: 'Fuchsia Co-ord',    why: 'Electric pink separates are a bold statement that always wins',        rating: 5, occasion: 'Parties & nights out' },
+        { hex: '#00FFFF', name: 'Aqua Blazer',       why: 'Cool aqua blazer creates a striking contrast with rich dark skin',     rating: 4, occasion: 'Office & semi-formal' },
+        { hex: '#7FFF00', name: 'Lime Green Set',    why: 'Lime green rewards deep skin magnificently — be bold!',                rating: 4, occasion: 'Casual & outdoor' },
+        { hex: '#FF6600', name: 'Bold Orange Dress', why: 'Vivid orange dress on deep skin is an unforgettable head-turning look', rating: 5, occasion: 'Festive & casual events' },
+      ],
+    },
+    makeup: [
+      { hex: '#FF6600', name: 'Electric Coral', type: 'Lip & Blush', tip: 'Bold coral lip makes deep skin look vibrant and alive' },
+      { hex: '#FFD700', name: 'Golden Bronze',  type: 'Highlighter', tip: 'Gold bronze highlighter gives deep skin an otherworldly glow' },
+      { hex: '#FF0080', name: 'Fuchsia Lip',    type: 'Lipstick',    tip: 'Electric fuchsia is your most glamorous and powerful shade' },
+      { hex: '#E0115F', name: 'Ruby Lip',       type: 'Lipstick',    tip: 'Deep ruby lip is classic, powerful and endlessly flattering' },
+      { hex: '#FF4500', name: 'Bold Orange',    type: 'Lip & Blush', tip: 'Warm orange tones celebrate the richness of deep skin' },
+      { hex: '#C71585', name: 'Violet Pink',    type: 'Lipstick',    tip: 'Cool-toned violet pink is unexpectedly gorgeous on dark skin' },
+    ],
+    jewelry: [
+      { hex: '#FFD700', name: 'Bold Gold',      metal: true,  tip: 'Chunky yellow gold on deep skin is undeniably regal and powerful' },
+      { hex: '#FF6600', name: 'Amber Orange',   metal: false, tip: 'Warm amber stones echo the richness of deep complexions' },
+      { hex: '#00FFFF', name: 'Aquamarine',     metal: false, tip: 'Cool blue-green stones create breathtaking contrast with dark skin' },
+      { hex: '#7FFF00', name: 'Peridot',        metal: false, tip: 'Green-gold peridot stones are an unexpected and beautiful pairing' },
+      { hex: '#FF0080', name: 'Pink Sapphire',  metal: false, tip: 'Electric pink gems against deep skin is bold, regal luxury' },
+      { hex: '#C0C0C0', name: 'Silver',         metal: true,  tip: 'Cool silver creates clean modern contrast with warm dark skin' },
+    ],
+    footwear: [
+      { hex: '#FFD700', name: 'Gold',          tip: 'Gold footwear against deep skin is head-turning and magnificent' },
+      { hex: '#FFFFFF', name: 'White',          tip: 'White shoes create maximum contrast — a bold and beautiful choice' },
+      { hex: '#FF6600', name: 'Bold Orange',   tip: 'Vivid orange shoes are an extension of your boldest colour palette' },
+      { hex: '#00FFFF', name: 'Cyan',           tip: 'Teal-cyan footwear is unexpected and extraordinarily striking' },
+      { hex: '#2C2C2C', name: 'Black',          tip: 'Classic black grounds vivid outfit colours for a balanced look' },
+      { hex: '#FF0080', name: 'Electric Pink', tip: 'Neon pink shoes — wear with white or neutral outfits for maximum impact' },
+    ],
+    seasons: {
+      spring: { tip: 'Neon pastels — electric pink, citrus yellow, aqua',         colours: ['#FF0080','#FFD700','#00FFFF','#7FFF00'] },
+      summer: { tip: 'Pure white and bold metallics — your ultimate summer glow',  colours: ['#FFFFFF','#FFD700','#FF6600','#C0C0C0'] },
+      autumn: { tip: 'Vivid warm tones — saffron, electric orange, golden green',  colours: ['#FF6600','#FFD700','#E0115F','#9ACD32'] },
+      winter: { tip: 'High contrast drama — white, black, neon accents that pop',  colours: ['#FFFFFF','#1C1C1C','#FF0080','#00FFFF'] },
+    },
+    styleTip: 'Your deep skin is a showstopper! Neons, bright whites and bold metallics look absolutely radiant on you!',
+  },
+};
+
+// 
+// -- SHOPPING LINKS DATA --
+// ;
+const SHOPPING_DATA = {
+  fair: {
+    clothing: [
+      { site: 'Myntra',  label: 'Deep purple sarees & suits',    url: 'https://www.myntra.com/sarees?f=Color%3APurple', logo: 'M' },
+      { site: 'Myntra',  label: 'Jewel tone kurtas & western',   url: 'https://www.myntra.com/kurtas?f=Color%3ANavy+Blue', logo: 'M' },
+      { site: 'Ajio',    label: 'Wine red & emerald outfits',    url: 'https://www.ajio.com/s/red-and-green-clothing', logo: 'A' },
+      { site: 'Amazon',  label: 'Ethnic wear in deep tones',     url: 'https://www.amazon.in/s?k=ethnic+wear+deep+purple+wine+red+women', logo: 'Az' },
+    ],
+    makeup: [
+      { site: 'Nykaa',   label: 'Berry & deep red lipsticks',    url: 'https://www.nykaa.com/lip-color/c/968?q=berry+deep+red+lipstick', logo: 'N' },
+      { site: 'Nykaa',   label: 'Peach & rose blush',           url: 'https://www.nykaa.com/blush/c/2367?q=peach+rose+blush', logo: 'N' },
+      { site: 'Amazon',  label: 'Fair skin tone makeup kits',    url: 'https://www.amazon.in/s?k=makeup+kit+for+fair+skin+indian', logo: 'Az' },
+    ],
+    jewelry: [
+      { site: 'Myntra',  label: 'Gold & rose gold jewelry',      url: 'https://www.myntra.com/jewellery?f=Material%3AGold+Plated', logo: 'M' },
+      { site: 'Amazon',  label: 'Emerald & ruby statement pieces',url: 'https://www.amazon.in/s?k=emerald+ruby+jewelry+women+india', logo: 'Az' },
+    ],
+    footwear: [
+      { site: 'Myntra',  label: 'Burgundy & tan heels/flats',    url: 'https://www.myntra.com/heels?f=Color%3ABurgundy', logo: 'M' },
+      { site: 'Ajio',    label: 'Navy & classic black footwear', url: 'https://www.ajio.com/s/navy-black-heels-women', logo: 'A' },
+    ],
+  },
+  wheatish: {
+    clothing: [
+      { site: 'Myntra',  label: 'Orange & golden sarees',        url: 'https://www.myntra.com/sarees?f=Color%3AOrange', logo: 'M' },
+      { site: 'Ajio',    label: 'Cherry red & hot pink outfits', url: 'https://www.ajio.com/s/red-pink-ethnic-wear-women', logo: 'A' },
+      { site: 'Myntra',  label: 'Olive green & cobalt kurtas',   url: 'https://www.myntra.com/kurtas?f=Color%3AOlive', logo: 'M' },
+      { site: 'Amazon',  label: 'Warm tone ethnic wear',         url: 'https://www.amazon.in/s?k=ethnic+wear+orange+mustard+women+india', logo: 'Az' },
+    ],
+    makeup: [
+      { site: 'Nykaa',   label: 'Copper bronze & coral lipsticks',url: 'https://www.nykaa.com/lip-color/c/968?q=copper+coral+lipstick', logo: 'N' },
+      { site: 'Nykaa',   label: 'Terracotta & brick red shades', url: 'https://www.nykaa.com/lip-color/c/968?q=terracotta+brick+red', logo: 'N' },
+      { site: 'Amazon',  label: 'Warm-tone makeup kits',         url: 'https://www.amazon.in/s?k=makeup+wheatish+skin+indian+women', logo: 'Az' },
+    ],
+    jewelry: [
+      { site: 'Myntra',  label: 'Antique gold & amber jewelry',  url: 'https://www.myntra.com/jewellery?f=Material%3AAntique+Gold', logo: 'M' },
+      { site: 'Amazon',  label: 'Crimson & forest green gems',   url: 'https://www.amazon.in/s?k=antique+gold+jewelry+women+india', logo: 'Az' },
+    ],
+    footwear: [
+      { site: 'Myntra',  label: 'Camel, maroon & rust sandals',  url: 'https://www.myntra.com/heels?f=Color%3ACamel', logo: 'M' },
+      { site: 'Ajio',    label: 'Saddle brown ethnic footwear',  url: 'https://www.ajio.com/s/brown-ethnic-footwear-women', logo: 'A' },
+    ],
+  },
+  dusky: {
+    clothing: [
+      { site: 'Myntra',  label: 'Gold & magenta sarees',         url: 'https://www.myntra.com/sarees?f=Color%3AGold', logo: 'M' },
+      { site: 'Ajio',    label: 'Turquoise & lime green outfits',url: 'https://www.ajio.com/s/turquoise-green-ethnic-wear', logo: 'A' },
+      { site: 'Myntra',  label: 'Deep pink & white western',     url: 'https://www.myntra.com/dresses?f=Color%3AWhite', logo: 'M' },
+      { site: 'Amazon',  label: 'Vibrant ethnic wear',           url: 'https://www.amazon.in/s?k=bright+colour+saree+ethnic+wear+women', logo: 'Az' },
+    ],
+    makeup: [
+      { site: 'Nykaa',   label: 'Crimson & magenta lipsticks',   url: 'https://www.nykaa.com/lip-color/c/968?q=crimson+magenta+lipstick', logo: 'N' },
+      { site: 'Nykaa',   label: 'Gold shimmer & amber highlighter',url:'https://www.nykaa.com/highlighter/c/2382?q=gold+shimmer', logo: 'N' },
+      { site: 'Amazon',  label: 'Bold makeup for dusky skin',    url: 'https://www.amazon.in/s?k=makeup+dusky+dark+skin+indian+women', logo: 'Az' },
+    ],
+    jewelry: [
+      { site: 'Myntra',  label: 'Turquoise & coral jewelry',     url: 'https://www.myntra.com/jewellery?q=turquoise+coral', logo: 'M' },
+      { site: 'Amazon',  label: 'Jade & pink sapphire pieces',   url: 'https://www.amazon.in/s?k=turquoise+jade+statement+jewelry+women', logo: 'Az' },
+    ],
+    footwear: [
+      { site: 'Myntra',  label: 'Gold & silver sandals',         url: 'https://www.myntra.com/heels?f=Color%3AGold', logo: 'M' },
+      { site: 'Ajio',    label: 'White & teal ethnic footwear',  url: 'https://www.ajio.com/s/white-gold-ethnic-footwear', logo: 'A' },
+    ],
+  },
+  deep: {
+    clothing: [
+      { site: 'Myntra',  label: 'Electric pink & gold sarees',   url: 'https://www.myntra.com/sarees?f=Color%3APink', logo: 'M' },
+      { site: 'Ajio',    label: 'White & vivid orange outfits',  url: 'https://www.ajio.com/s/white-orange-ethnic-wear-women', logo: 'A' },
+      { site: 'Myntra',  label: 'Neon & bright western dresses', url: 'https://www.myntra.com/dresses?f=Color%3AYellow', logo: 'M' },
+      { site: 'Amazon',  label: 'Bold bright wear for deep skin',url: 'https://www.amazon.in/s?k=neon+bright+colour+ethnic+wear+women+india', logo: 'Az' },
+    ],
+    makeup: [
+      { site: 'Nykaa',   label: 'Fuchsia & ruby red lipsticks',  url: 'https://www.nykaa.com/lip-color/c/968?q=fuchsia+ruby+bold+lipstick', logo: 'N' },
+      { site: 'Nykaa',   label: 'Gold bronze & electric coral',  url: 'https://www.nykaa.com/lip-color/c/968?q=gold+bronze+coral', logo: 'N' },
+      { site: 'Amazon',  label: 'Deep skin tone makeup',         url: 'https://www.amazon.in/s?k=makeup+deep+dark+skin+tone+indian', logo: 'Az' },
+    ],
+    jewelry: [
+      { site: 'Myntra',  label: 'Bold gold & aquamarine jewelry',url: 'https://www.myntra.com/jewellery?f=Material%3AGold+Plated', logo: 'M' },
+      { site: 'Amazon',  label: 'Peridot & pink sapphire pieces',url: 'https://www.amazon.in/s?k=bold+statement+gold+jewelry+women+india', logo: 'Az' },
+    ],
+    footwear: [
+      { site: 'Myntra',  label: 'Gold, white & electric heels',  url: 'https://www.myntra.com/heels?f=Color%3AGold', logo: 'M' },
+      { site: 'Ajio',    label: 'Bold colour block footwear',    url: 'https://www.ajio.com/s/bright-bold-footwear-women', logo: 'A' },
+    ],
+  },
+};
+
+function hashPwd(p){let h=0,s=p+'aaina_2024_salt';for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h.toString(36)+s.length.toString(36);}
+function genToken(){return Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Date.now().toString(36);}
+const DB={read(){try{return JSON.parse(localStorage.getItem('aaina_db')||'null')||{users:[],sessions:[],preferences:[]};}catch(e){return{users:[],sessions:[],preferences:[]};}},write(d){try{localStorage.setItem('aaina_db',JSON.stringify(d));}catch(e){}}};
+function getUserByToken(token){const db=DB.read();const s=db.sessions.find(s=>s.token===token&&s.exp>Date.now());if(!s)return null;return db.users.find(u=>u.id===s.uid)||null;}
+const BackendAPI={
+  signup(name,email,password){if(!name||!email||!password||password.length<6)return{ok:false,error:'Name, email and password (min 6 chars) required.'};const db=DB.read();if(db.users.find(u=>u.email===email.toLowerCase()))return{ok:false,error:'An account with this email already exists.'};const user={id:Date.now().toString(),name:name.trim(),email:email.toLowerCase().trim(),pwd:hashPwd(password),created:new Date().toISOString()};const token=genToken();db.users.push(user);db.sessions.push({token,uid:user.id,exp:Date.now()+7*24*60*60*1000});DB.write(db);return{ok:true,token,user:{id:user.id,name:user.name,email:user.email}};},
+  login(email,password){if(!email||!password)return{ok:false,error:'Email and password required.'};const db=DB.read();const user=db.users.find(u=>u.email===email.toLowerCase()&&u.pwd===hashPwd(password));if(!user)return{ok:false,error:'Invalid email or password.'};const token=genToken();const sessions=db.sessions||[];sessions.push({token,uid:user.id,exp:Date.now()+7*24*60*60*1000});db.sessions=sessions;DB.write(db);return{ok:true,token,user:{id:user.id,name:user.name,email:user.email}};},
+  logout(token){const db=DB.read();db.sessions=(db.sessions||[]).filter(s=>s.token!==token);DB.write(db);return{ok:true};},
+  savePreference(token,skinTone,method){const user=getUserByToken(token);if(!user)return{ok:false};const db=DB.read();const idx=(db.preferences||[]).findIndex(p=>p.uid===user.id);const pref={uid:user.id,skinTone,method:method||'manual',updated:new Date().toISOString()};if(idx>=0)db.preferences[idx]=pref;else{db.preferences=db.preferences||[];db.preferences.push(pref);}DB.write(db);return{ok:true,pref};},
+  getColours(tone){return{ok:true,data:COLOUR_DATA[tone]};},
+  getShopping(tone){return{ok:true,data:SHOPPING_DATA[tone]};},
+};
+
+// -- SESSION  --
+function saveSession(token, user) {
+  authToken = token; currentUser = user;
+  try { localStorage.setItem('aaina_token', token); localStorage.setItem('aaina_user', JSON.stringify(user)); } catch(e){}
+}
+function loadSession() {
+  try {
+    const t = localStorage.getItem('aaina_token');
+    const u = localStorage.getItem('aaina_user');
+    if (t && u) { authToken = t; currentUser = JSON.parse(u); return true; }
+  } catch(e){}
+  return false;
+}
+function clearSession() {
+  authToken = null; currentUser = null;
+  try { localStorage.removeItem('aaina_token'); localStorage.removeItem('aaina_user'); } catch(e){}
+}
+
+// -- AUTH MODAL  --
+function openAuth(tab) { document.getElementById('authModal').classList.add('open'); switchAuthTab(tab||'login'); }
+function closeAuth() { document.getElementById('authModal').classList.remove('open'); }
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('signupForm').style.display = tab==='signup'?'block':'none';
+  document.getElementById('tab-login-btn').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup-btn').classList.toggle('active', tab==='signup');
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('signupErr').style.display = 'none';
+}
+document.getElementById('authModal').addEventListener('click', e => { if(e.target===document.getElementById('authModal')) closeAuth(); });
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
+  const result = BackendAPI.login(email, password);
+  btn.disabled=false; btn.textContent='✦ Log In';
+  if (!result.ok) { err.textContent=result.error; err.style.display='block'; return; }
+  saveSession(result.token, result.user);
+  closeAuth(); applyAuthState(); loadToneGrid();
+}
+
+async function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPass').value;
+  const btn = document.getElementById('signupBtn');
+  const err = document.getElementById('signupErr');
+  err.style.display='none'; btn.disabled=true; btn.textContent='Creating account…';
+  const result = BackendAPI.signup(name, email, password);
+  btn.disabled=false; btn.textContent='✦ Create Account';
+  if (!result.ok) { err.textContent=result.error; err.style.display='block'; return; }
+  saveSession(result.token, result.user);
+  closeAuth(); applyAuthState(); loadToneGrid();
+}
+
+async function doLogout() {
+  if (authToken) BackendAPI.logout(authToken);
+  clearSession(); applyAuthState();
+  document.getElementById('placeholder').style.display='block';
+  document.getElementById('resultBox').style.display='none';
+  activeTone=null; tonesCache={};
+  document.querySelectorAll('.tone-card').forEach(c=>c.classList.remove('active'));
+}
+
+// -- AUTH STATE  --
+function applyAuthState() {
+  const loggedIn = !!currentUser;
+  const navRight = document.getElementById('navRight');
+  if (loggedIn) {
+    const initials = currentUser.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    navRight.innerHTML = `
+      <span class="status-badge online"><span class="status-dot"></span>Backend online</span>
+      <div class="user-pill">
+        <div class="user-avatar">${initials}</div>
+        <span>${currentUser.name.split(' ')[0]}</span>
+        <button class="logout-btn" onclick="doLogout()">Log out</button>
+      </div>`;
+    document.getElementById('toneGateBanner').style.display='none';
+    document.getElementById('toneContent').classList.remove('auth-gate');
+    document.getElementById('selfieGateBanner').style.display='none';
+    document.getElementById('selfieContent').classList.remove('auth-gate');
+    document.getElementById('selfieContent').style.pointerEvents='';
+    document.getElementById('placeholder').innerHTML='<span class="icon">🎨</span>Select your skin tone above to unlock your personalised colour story';
+  } else {
+    navRight.innerHTML = `
+      <span id="apiStatusBadge"></span>
+      <button class="nav-btn" onclick="openAuth('login')">Log in</button>
+      <button class="nav-btn primary" onclick="openAuth('signup')">Sign up free</button>`;
+    document.getElementById('toneGateBanner').style.display='block';
+    document.getElementById('toneContent').classList.add('auth-gate');
+    document.getElementById('selfieGateBanner').style.display='block';
+    document.getElementById('selfieContent').classList.add('auth-gate');
+    document.getElementById('selfieContent').style.pointerEvents='none';
+    document.getElementById('placeholder').innerHTML='<span class="icon">🔒</span>Please log in or sign up to see your colour palette';
+  }
+}
+
+// -- TONE GRID  --
+function loadToneGrid() {
+  const grid = document.getElementById('toneGrid');
+  grid.innerHTML = Object.entries(COLOUR_DATA).map(([id,t]) => `
+    <div class="tone-card" id="tc-${id}" onclick="selectTone('${id}')">
+      <div class="check">✓</div>
+      <div class="swatch-ring"><div class="swatch-inner" style="background:${t.swatch}"></div></div>
+      <div class="tone-name">${t.name}</div>
+      <div class="tone-range">${t.range.split('·')[0].trim()}</div>
+    </div>`).join('');
+}
+
+// -- SELECT TONE  --
+function selectTone(id) {
+  if (!currentUser) { openAuth('login'); return; }
+  activeTone = id; activeTab = 'clothing';
+  document.querySelectorAll('.tone-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tc-'+id).classList.add('active');
+  document.getElementById('placeholder').style.display='none';
+  const box = document.getElementById('resultBox');
+  box.style.display='block';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  BackendAPI.savePreference(authToken, id, 'manual');
+  const result = BackendAPI.getColours(id);
+  renderResults(result.data);
+}
+
+function switchTab(tab) {
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-btn-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+// -- RENDER RESULTS  --
+function renderResults(t) {
+  const box = document.getElementById('resultBox');
+
+  function stars(n) {
+    return `<div class="rating-stars">${[1,2,3,4,5].map(i=>`<div class="star ${i<=n?'filled':'empty'}"></div>`).join('')}</div>`;
+  }
+  function richCard(c) {
+    return `<div class="colour-card">
+      <div class="colour-card-swatch" style="background:${c.hex}"></div>
+      <div class="colour-card-info">
+        <div class="colour-card-name">${c.name}${c.rating===5?'<span class="best-badge">✦ Best match</span>':''}</div>
+        <div class="colour-card-why">${c.why}</div>
+        <div class="colour-card-meta">${stars(c.rating)}<div class="colour-card-occasion">${c.occasion}</div></div>
+      </div></div>`;
+  }
+  function avoidCard(c) {
+    return `<div class="avoid-card">
+      <div class="avoid-card-dot" style="background:${c.hex}"></div>
+      <div class="avoid-card-info">
+        <div class="avoid-card-name">${c.name}<span class="avoid-x-badge">✕ Avoid</span></div>
+        <div class="avoid-card-why">${c.why}</div>
+      </div></div>`;
+  }
+  function chip(c, extra='') {
+    return `<div class="chip"><div class="chip-dot" style="background:${c.hex}"></div><div class="chip-name">${c.name}</div>${extra?`<div class="chip-type">${extra}</div>`:''}</div>`;
+  }
+  function seasonSwatch(col) {
+    return `<div style="width:32px;height:32px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,0.7);display:inline-block;margin-right:4px;"></div>`;
+  }
+
+  const clothingContent = `
+    <div class="card"><div class="wear-header"><div class="wear-tag">✦ Your Best Colours</div></div>
+    <div class="card-title"><div class="dot"></div>Ranked by how well each colour suits your skin tone</div>
+    <div class="colour-cards-grid">${t.clothing.best.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="wear-header"><div class="wear-tag">Traditional wear</div></div>
+    <div class="card-title"><div class="dot"></div>Sarees, lehengas, kurtas & sherwanis</div>
+    <div class="colour-cards-grid">${t.clothing.traditional.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="wear-header"><div class="wear-tag">Western wear</div></div>
+    <div class="card-title"><div class="dot"></div>Dresses, blazers, denim & co-ords</div>
+    <div class="colour-cards-grid">${t.clothing.western.map(richCard).join('')}</div></div>
+    <div class="card" style="margin-top:1rem;"><div class="card-title"><div class="dot"></div>Colours to avoid — and why</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">${t.clothing.avoid.map(avoidCard).join('')}</div></div>
+    <div class="tip-box" style="margin-top:1rem;"><strong>Style tip:</strong> ${t.styleTip}</div>`;
+
+  const makeupContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Lipstick, blush & eyeshadow recommendations</div>
+    <div class="chips-wrap">${t.makeup.map(c=>chip(c,c.type)).join('')}</div>
+    <div style="margin-top:14px;">${t.makeup.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const jewelryContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Metal tones & gemstone colours</div>
+    <div class="chips-wrap">${t.jewelry.map(c=>chip(c,c.metal?'Metal':'Gemstone')).join('')}</div>
+    <div style="margin-top:14px;">${t.jewelry.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const footwearContent = `<div class="card">
+    <div class="card-title"><div class="dot"></div>Shoe & sandal colour recommendations</div>
+    <div class="chips-wrap">${t.footwear.map(c=>chip(c)).join('')}</div>
+    <div style="margin-top:14px;">${t.footwear.map(c=>`<div class="detail-tip">• <strong>${c.name}:</strong> ${c.tip}</div>`).join('')}</div></div>`;
+
+  const seasonalContent = `<div class="season-grid">
+    ${[['spring','🌸','Spring'],['summer','☀️','Summer'],['autumn','🍂','Autumn'],['winter','❄️','Winter']].map(([k,icon,label])=>`
+    <div class="season-card ${k}">
+      <div class="season-icon">${icon}</div>
+      <div class="season-name">${label}</div>
+      <div style="margin-bottom:8px;">${t.seasons[k].colours.map(seasonSwatch).join('')}</div>
+      <div class="season-tip">${t.seasons[k].tip}</div>
+    </div>`).join('')}</div>`;
+
+  const logoColors = {M:'#FF3F6C',N:'#FC2779',A:'#F06225',Az:'#FF9900'};
+  const shopResult = BackendAPI.getShopping(activeTone);
+  const shopInline = shopResult.data;
+  function buildShopContent() {
+    const s = shopInline;
+    function shopCards(arr) {
+        return arr.map(sh=>`<a href="${sh.url}" target="_blank" rel="noopener" class="shop-card">
+          <div class="shop-logo" style="background:${logoColors[sh.logo]||'#888'}">${sh.logo==='Az'?'<span style="font-size:9px">amz</span>':sh.logo}</div>
+          <div class="shop-info"><div class="shop-site">${sh.site}</div><div class="shop-label">${sh.label}</div></div>
+          <div class="shop-arrow">→</div></a>`).join('');
+      }
+      const shopContent = `
+        <div class="shop-intro-text">Curated shopping links for <strong>${t.name}</strong> skin tone — your best colours across top Indian stores.</div>
+        <div class="shop-section-title">👗 Clothing</div><div class="shop-grid">${shopCards(s.clothing)}</div>
+        <div class="shop-section-title">💄 Makeup</div><div class="shop-grid">${shopCards(s.makeup)}</div>
+        <div class="shop-section-title">💍 Jewelry</div><div class="shop-grid">${shopCards(s.jewelry)}</div>
+        <div class="shop-section-title">👠 Footwear</div><div class="shop-grid">${shopCards(s.footwear)}</div>
+        <div class="tip-box" style="margin-top:1rem;"><strong>Shopping tip:</strong> Filter by colour on each site to find shades that match your palette perfectly!</div>`;
+    document.getElementById('tab-shop').innerHTML = shopContent;
+  }
+
+  const tabs = ['clothing','makeup','jewelry','footwear','seasonal','shop'];
+  const tabsHtml = tabs.map(tab=>`
+    <button class="tab-btn ${tab===activeTab?'active':''}" id="tab-btn-${tab}" onclick="switchTab('${tab}')">
+      ${tab==='clothing'?'👗 Clothing':tab==='makeup'?'💄 Makeup':tab==='jewelry'?'💍 Jewelry':tab==='footwear'?'👠 Footwear':tab==='seasonal'?'🌿 Seasonal':'🛍 Shop'}
+    </button>`).join('');
+
+  box.innerHTML = `
+    <div class="result-header">
+      <div class="result-swatch-lg" style="background:${t.swatch}"></div>
+      <div><div class="result-subtitle">${t.range}</div><div class="result-title">${t.name} Skin Tone</div><div class="result-desc">${t.desc}</div></div>
+    </div>
+    <div class="tabs">${tabsHtml}</div>
+    <div class="tab-content active" id="tab-clothing">${clothingContent}</div>
+    <div class="tab-content" id="tab-makeup">${makeupContent}</div>
+    <div class="tab-content" id="tab-jewelry">${jewelryContent}</div>
+    <div class="tab-content" id="tab-footwear">${footwearContent}</div>
+    <div class="tab-content" id="tab-seasonal">${seasonalContent}</div>
+    <div class="tab-content" id="tab-shop"><div style="text-align:center;padding:2rem;color:var(--text-soft)">Loading shopping links…</div></div>`;
+
+  buildShopContent();
+}
+
+// -- SELFIE DETECTOR  --
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedDataUrl = ev.target.result;
+    document.getElementById('uploadZone').style.display='none';
+    document.getElementById('previewWrap').style.display='block';
+    document.getElementById('previewImg').src=uploadedDataUrl;
+    document.getElementById('analyseBtn').disabled=false;
+    document.getElementById('aiResult').style.display='none';
+    document.getElementById('errMsg').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+function resetUpload() {
+  uploadedDataUrl=null;
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('previewWrap').style.display='none';
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('aiResult').style.display='none';
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('fileInput').value='';
+}
+function extractSkinTone(dataUrl, callback) {
+  const img = new Image();
+  img.onload = function() {
+    const canvas=document.getElementById('hiddenCanvas');
+    const size=120; canvas.width=size; canvas.height=size;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,size,size);
+    const pixels=ctx.getImageData(0,0,size,size).data;
+    let rSum=0,gSum=0,bSum=0,count=0;
+    for(let i=0;i<pixels.length;i+=4){
+      const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+      const max=Math.max(r,g,b),min=Math.min(r,g,b);
+      if(r>60&&g>30&&b>15&&r>g&&r>b&&(max-min)>10&&r<250){
+        const norm=r+g+b;
+        if(norm>90&&norm<700){rSum+=r;gSum+=g;bSum+=b;count++;}
+      }
+    }
+    if(count<50){
+      rSum=0;gSum=0;bSum=0;count=0;
+      const cx=size/2,cy=size/2,rad=30;
+      for(let y=cy-rad;y<cy+rad;y++)for(let x=cx-rad;x<cx+rad;x++){
+        const i=(Math.floor(y)*size+Math.floor(x))*4;
+        rSum+=pixels[i];gSum+=pixels[i+1];bSum+=pixels[i+2];count++;
+      }
+    }
+    callback(Math.round(rSum/count),Math.round(gSum/count),Math.round(bSum/count));
+  };
+  img.src=dataUrl;
+}
+function classifyTone(r,g,b){
+  const brightness=r*0.299+g*0.587+b*0.114;
+  if(brightness>175)return'fair';
+  if(brightness>140)return'wheatish';
+  if(brightness>105)return'dusky';
+  return'deep';
+}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+
+function analyseSelfie() {
+  if(!uploadedDataUrl){showErr('Please upload a selfie first.');return;}
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('aiResult').style.display='none';
+  document.getElementById('loadingPulse').style.display='block';
+  setTimeout(()=>{
+    extractSkinTone(uploadedDataUrl,async(r,g,b)=>{
+      document.getElementById('loadingPulse').style.display='none';
+      document.getElementById('analyseBtn').disabled=false;
+      const toneId=classifyTone(r,g,b);
+      const detectedHex=rgbToHex(r,g,b);
+      const t = COLOUR_DATA[toneId];
+        BackendAPI.savePreference(authToken, toneId, 'selfie');
+        const box=document.getElementById('aiResult');
+        function aiChip(c){return`<div class="ai-chip"><div class="ai-chip-dot" style="background:${c.hex}"></div>${c.name}</div>`;}
+        box.innerHTML=`
+          <div class="ai-result-header">
+            <div class="ai-tone-dot" style="background:${detectedHex}"></div>
+            <div><div class="ai-tone-label">${t.name} Skin Tone Detected</div><div class="ai-tone-sub">${t.range}</div></div>
+          </div>
+          <div class="ai-insight">${t.desc}</div>
+          <div class="ai-grid">
+            <div class="ai-card"><div class="ai-card-title">👗 Best clothing</div><div class="ai-chips">${t.clothing.best.slice(0,5).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">💄 Makeup</div><div class="ai-chips">${t.makeup.slice(0,4).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">💍 Jewelry</div><div class="ai-chips">${t.jewelry.slice(0,3).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+            <div class="ai-card"><div class="ai-card-title">👠 Footwear</div><div class="ai-chips">${t.footwear.slice(0,3).map(c=>aiChip({hex:c.hex,name:c.name})).join('')}</div></div>
+          </div>
+          <div class="tip-box"><strong>Aaina's tip:</strong> ${t.styleTip}</div>`;
+        box.style.display='block';
+        selectTone(toneId);
+    });
+  },900);
+}
+function showErr(msg){const el=document.getElementById('errMsg');el.textContent='⚠ '+msg;el.style.display='block';}
+
+// -- INIT  --
+(function init(){
+  loadToneGrid();
+  if(loadSession()){
+    const user = getUserByToken(authToken);
+    if(user){ currentUser = user; applyAuthState(); }
+    else { clearSession(); applyAuthState(); }
+  } else {
+    applyAuthState();
+  }
+})();
+</script>
+</body>
+</html>
